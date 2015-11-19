@@ -45,12 +45,12 @@ function Get-Possible-Next-Versions-Develop ($Version)
       }
       elseif ($Pre -eq "rc")
       {
-        return "$($Major).$($Minor).$($Patch)-alpha.1", $NextPossibleMinor, $NextPossibleMajor
+        return $NextPossiblePreVersion, $NextPossibleMinor, $NextPossibleMajor
       }
     }
     else
     {
-      return "$($Major).$($Minor).$($Patch)-alpha.1", $NextPossibleMinor, $NextPossibleMajor
+      return "$($NextPossibleMinor)-alpha.1", $NextPossibleMinor, $NextPossibleMajor
     } 
 }
 
@@ -91,7 +91,7 @@ function Get-Possible-Next-Versions-Support ($Version)
     }
     else
     {
-      return "$($Major).$($Minor).$($Patch)-alpha.1", $NextPossiblePatch
+      return "$($NextPossiblePatch)-alpha.1", $NextPossiblePatch
     } 
 }
 
