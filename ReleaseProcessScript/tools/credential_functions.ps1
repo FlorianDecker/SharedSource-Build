@@ -19,7 +19,7 @@ function Save-Credential ($Username, $Password)
 function Create-Password-Credential ($Username, $Password)
 {
     $ConfigFile = Get-Config-File
-    $JiraCredentialResourceString = "RemotionJira$($ConfigFile.settings.jiraCredentials.jiraProjectKey)"
+    $JiraCredentialResourceString = "RemotionJira$($ConfigFile.settings.jira.jiraProjectKey)"
 
     [Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime] > $NULL
     $PasswordCredential = New-Object Windows.Security.Credentials.PasswordCredential
@@ -37,7 +37,7 @@ function Get-Credential ()
     $PasswordVault = New-Object Windows.Security.Credentials.PasswordVault
 
     $ConfigFile = Get-Config-File
-    $JiraCredentialResourceString = "RemotionJira$($ConfigFile.settings.jiraCredentials.jiraProjectKey)"
+    $JiraCredentialResourceString = "RemotionJira$($ConfigFile.settings.jira.jiraProjectKey)"
 
     try
     {
@@ -72,7 +72,7 @@ function Get-Credential ()
 function Delete-Credentials ()
 {
     $ConfigFile = Get-Config-File
-    $JiraCredentialResourceString = "RemotionJira$($ConfigFile.settings.jiraCredentials.jiraProjectKey)"
+    $JiraCredentialResourceString = "RemotionJira$($ConfigFile.settings.jira.jiraProjectKey)"
 
     [Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime] > $NULL
     $PasswordVault = New-Object Windows.Security.Credentials.PasswordVault
