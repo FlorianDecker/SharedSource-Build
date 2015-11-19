@@ -21,66 +21,9 @@ function Get-Current-Branchname ()
     return $(git symbolic-ref --short -q HEAD)
 }
 
-function Get-Last-Version-Of-Branch-From-Tag ()
+function Get-Last-Version-Of-Branch-From-Tag ($Branchname)
 {
-    return git describe --match "v[0-9]*" --abbrev=0
-}
-
-function Get-Tag-List ()
-{
-    $TagList = git tag -l v[0-9]* --sort=-refname
-
-    if ([string]::IsNullOrEmpty($TagList))
-    {
-      return [string]::Empty
-    }
-
-    $TagList = ($TagList).Split()
-    
-    return $TagList
-}
-
-function Get-Last-Version-From-Tag-On-Develop ()
-{
-    $TagList = Get-Tag-List
-
-    if ([string]::IsNullOrEmpty($TagList))
-    {
-      return $NULL
-    }
-
-    foreach ($Tag in $TagList)
-    {
-      if (-not (Is-Support-Version $Tag.Substring(1)) )
-      {
-        return $Tag
-      }    
-    }
-
-    return $NULL
-}
-
-function Get-Last-Version-From-Tag-On-Support ($SupportVersion)
-{
-    $TagList = Get-Tag-List
-
-    if ([string]::IsNullOrEmpty($TagList))
-    {
-      return $NULL
-    }
-
-    foreach ($Tag in $TagList)
-    {
-      if ($Tag.StartsWith($SupportVersion))
-      {
-        if (Is-Support-Version $Tag.Substring(1) )
-        {
-          return $Tag
-        }
-      }    
-    }
-
-    return $NULL
+    return git describe $Branchname --match "v[0-9]*" --abbrev=0
 }
 
 function Is-On-Branch ($Branchname)

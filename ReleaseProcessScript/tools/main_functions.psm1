@@ -25,13 +25,13 @@ function Release-Version ()
 
     if (Is-On-Branch "support/")
     {
-      $SupportVersion = $CurrentBranchname.Split("/")[1]
+      $SupportVersion = $CurrentBranchname.Split("/")[1].Substring(1)
       $CurrentVersion = Get-Support-Current-Version $SupportVersion
       $PreVersion = Get-PreReleaseStage $CurrentVersion
 
       if ([string]::IsNullOrEmpty($PreVersion))
       {
-        Release-Support -StartReleasePhase:$StartReleasePhase -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash
+        Release-Support -StartReleasePhase:$StartReleasePhase -CurrentVersion $CurrentVersion -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash
       }
       elseif ( ($PreVersion -eq "alpha") -or ($PreVersion -eq "beta") )
       {
@@ -93,13 +93,15 @@ function Continue-Release()
     }
     elseif (Is-On-Branch "release/")
     {
-      if (Is-Support-Version $CurrentVersion)
+      $Ancestor = Get-Ancestor
+
+      if ($Ancestor -eq "develop" )
       {
-        Continue-Support-Release $CurrentVersion -DoNotPush:$DoNotPush
+        Continue-Master-Release $CurrentVersion -DoNotPush:$DoNotPush
       } 
       else
       {
-        Continue-Master-Release $CurrentVersion -DoNotPush:$DoNotPush
+        Continue-Support-Release $CurrentVersion -DoNotPush:$DoNotPush
       }    
     }
     else
@@ -114,6 +116,7 @@ function Release-Support ()
     param
     (
       [string] $CommitHash,
+      [string] $CurrentVersion,
       [switch] $StartReleasePhase,
       [switch] $PauseForCommit,
       [switch] $DoNotPush
@@ -125,16 +128,6 @@ function Release-Support ()
 
     $CurrentBranchname = Get-Current-Branchname
 
-    $LastVersion = (Get-Last-Version-Of-Branch-From-Tag).substring(1)
-    
-    #No Tags on this branch? Our Last Version Patch = 0, so Current Version then has Patch = 1
-    if ([string]::IsNullOrEmpty($LastVersion))
-    {
-      $SupportBranchVersion = ($CurrentBranchname).Split("/")[1].Substring(1)
-      $LastVersion = "$($SupportBranchVersion).0"
-    }
-
-    $CurrentVersion = Get-Next-Patch $LastVersion
     Write-Host "Current version: '$($CurrentVersion)'."
     $NextVersion = Get-Next-Patch $CurrentVersion  
     Write-Host "Next version: '$($NextVersion)'."
@@ -189,10 +182,6 @@ function Release-On-Master ()
     $ReleaseBranchname = "release/v$($CurrentVersion)"
     Check-Branch-Does-Not-Exists $ReleaseBranchname
 
-    $NextPossibleVersions = Get-Possible-Next-Versions $CurrentVersion
-    Write-Host "Please choose next version (open JIRA issues get moved there): "
-    $NextVersion = Read-Version-Choice $NextPossibleVersions
-
     Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -PrepareNextVersion 
 
     git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
@@ -201,6 +190,10 @@ function Release-On-Master ()
     {
       return
     }
+
+    $NextPossibleVersions = Get-Possible-Next-Versions-Develop $CurrentVersion
+    Write-Host "Please choose next version (open JIRA issues get moved there): "
+    $NextVersion = Read-Version-Choice $NextPossibleVersions
 
     Create-And-Release-Jira-Versions $CurrentVersion $NextVersion
     
@@ -243,22 +236,26 @@ function Release-Alpha-Beta ()
       }
     }
 
-    if (Is-Support-Version $CurrentVersion)
+    $CurrentBranchname = Get-Current-Branchname
+
+    if ($CurrentBranchname.StartsWith("support/"))
     {
-      Check-Is-On-Branch "support/"
+      $NextPossibleVersions = Get-Possible-Next-Versions-Support $CurrentVersion
+    }
+    elseif ($CurrentBranchname -eq "develop")
+    {
+      $NextPossibleVersions = Get-Possible-Next-Versions-Develop $CurrentVersion
     }
     else
     {
-      Check-Is-On-Branch "develop"
+      throw "You have to be on either a 'support/*' branch or on 'develop' to release an alpha or beta version"
     }
 
-    
     $PreReleaseBranchname = "prerelease/v$($CurrentVersion)"
     Check-Branch-Does-Not-Exists $PreReleaseBranchname
 
     git checkout $CommitHash -b $PreReleaseBranchname 2>&1 | Write-Host
 
-    $NextPossibleVersions = Get-Possible-Next-Versions $CurrentVersion
     Write-Host "Please choose next version (open JIRA issues get moved there): "
     $NextVersion = Read-Version-Choice $NextPossibleVersions
    
@@ -288,13 +285,22 @@ function Release-RC ()
     Check-Working-Directory
     Check-Commit-Hash $CommitHash
     Check-Is-On-Branch "release/"
+    $Ancestor = Get-Ancestor
 
     $CurrentBranchname = Get-Current-Branchname
     $LastVersion = Parse-Version-From-ReleaseBranch $CurrentBranchname
 
     $CurrentVersion = Get-Next-Rc $LastVersion
 
-    $NextPossibleVersions = Get-Possible-Next-Versions $CurrentVersion
+    if ($Ancestor -eq "develop")
+    {
+      $NextPossibleVersions = Get-Possible-Next-Versions-Develop $CurrentVersion
+    }
+    else
+    {
+      $NextPossibleVersions = Get-Possible-Next-Versions-Support $CurrentVersion
+    }
+
     Write-Host "Please choose next version (open JIRA issues get moved there): "
     $NextVersion = Read-Version-Choice $NextPossibleVersions
 
@@ -329,14 +335,25 @@ function Release-With-RC ()
     
     $CurrentBranchname = Get-Current-Branchname
     $CurrentVersion = Parse-Version-From-ReleaseBranch $CurrentBranchname
-    
+    $Ancestor = Get-Ancestor
+
     if (Get-Tag-Exists "v$($CurrentVersion)")
     {
       throw "There is already a commit tagged with 'v$($CurrentVersion)'."
     }
 
     Write-Host "You are releasing version '$($CurrentVersion)'."
-    $PossibleNextVersions = Get-Possible-Next-Versions $CurrentVersion
+    
+    if ($Ancestor -eq "develop")
+    {
+      $PossibleNextVersions = Get-Possible-Next-Versions-Develop $CurrentVersion
+    }
+    else
+    {
+      $PossibleNextVersions = Get-Possible-Next-Versions-Support $CurrentVersion
+    }
+
+
     Write-Host "Choose next version (open issues get moved there): "
     $NextVersion = Read-Version-Choice $PossibleNextVersions
     
@@ -349,13 +366,14 @@ function Release-With-RC ()
       return
     }
 
-    if (Is-Support-Version $CurrentVersion)
+    
+    if ($Ancestor -eq "develop")
     {
-      Continue-Support-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
+      Continue-Master-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
     }
     else
     {
-      Continue-Master-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
+      Continue-Support-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
     }
 }
 
@@ -449,15 +467,7 @@ function Continue-Pre-Release ()
 
     git tag -a "$($Tagname)" -m "$($Tagname)" 2>&1 > $NULL    
 
-    if (Is-Support-Version $CurrentVersion)
-    {
-      $MajorMinor = Get-Major-Minor-From-Version $CurrentVersion
-      $MergeBranchName = "support/v$($MajorMinor)"
-    }
-    else
-    {
-      $MergeBranchName = "develop"
-    }
+    $MergeBranchName = Get-Ancestor
 
     Check-Branch-Exists-And-Up-To-Date $MergeBranchName
     

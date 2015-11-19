@@ -22,24 +22,40 @@ function Create-And-Release-Jira-Versions ($CurrentVersion, $NextVersion, $Squas
 
 function Get-Develop-Current-Version ()
 {
-    $VersionFromTag = Get-Last-Version-From-Tag-On-Develop
-    $CurrentVersion = Read-Current-Version $VersionFromTag
+    #Get last Tag from develop
+    $DevelopVersion = Get-Last-Version-Of-Branch-From-Tag
+
+    #Get last Tag from master (because Get-Last-Version-Of-Branch-From-Tag does not reach master, so the master commit could be the recent)
+    $MasterVersion = Get-Last-Version-Of-Branch-From-Tag "master"
+
+    #Take most recent
+    if ($DevelopVersion.CompareTo($MasterVersion) -eq 1)
+    {
+      $LastVersion = $DevelopVersion
+    }
+    else
+    {
+      $LastVersion = $MasterVersion
+    }
+    
+    $PossibleVersions = Get-Possible-Next-Versions-Develop $LastVersion.Substring(1)
+
+    $CurrentVersion = Read-Version-Choice $PossibleVersions
 
     return $CurrentVersion
 }
 
 function Get-Support-Current-Version ($SupportVersion)
 {
-    $VersionFromTag = Get-Last-Version-From-Tag-On-Support $SupportVersion
-
-    if ([string]::IsNullOrEmpty($VersionFromTag))
+    if (-not (Get-Tag-Exists "v$($SupportVersion).0") )
     {
-      $PossibleSupportVersions = Get-Possible-First-Supports $SupportVersion.Substring(1)
-      $CurrentVersion = Read-Version-Choice $PossibleSupportVersions
+      $CurrentVersion = "$($SupportVersion).0"
     }
     else
     {
-      $CurrentVersion = Read-Current-Version $VersionFromTag
+     $LastVersion = Get-Last-Version-Of-Branch-From-Tag
+     $PossibleVersions = Get-Possible-Next-Versions-Support $LastVersion.Substring(1)
+     $CurrentVersion = Read-Version-Choice $PossibleVersions
     }
 
     return $CurrentVersion
