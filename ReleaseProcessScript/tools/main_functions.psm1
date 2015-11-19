@@ -35,7 +35,7 @@ function Release-Version ()
       }
       elseif ( ($PreVersion -eq "alpha") -or ($PreVersion -eq "beta") )
       {
-        Release-Alpha-Beta -CurrentVersion $CurrentVersion -StartReleasePhase:$StartReleasePhase -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash
+        Release-Alpha-Beta -CurrentVersion $CurrentVersion -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash
       }
     } 
     elseif (Is-On-Branch "develop")
@@ -45,11 +45,11 @@ function Release-Version ()
 
       if ([string]::IsNullOrEmpty($PreVersion))
       {
-        Release-On-Master -CurrentVersion $CurrentVersion -StartReleasePhase:$StartReleasePhase -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash
+        Release-On-Master -StartReleasePhase:$StartReleasePhase -CurrentVersion $CurrentVersion -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash
       }
       elseif ( ($PreVersion -eq "alpha") -or ($PreVersion -eq "beta"))
       {
-        Release-Alpha-Beta -CurrentVersion $CurrentVersion -StartReleasePhase:$StartReleasePhase -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash
+        Release-Alpha-Beta -CurrentVersion $CurrentVersion -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash
       }
     }
     elseif (Is-On-Branch "release/")
@@ -63,11 +63,11 @@ function Release-Version ()
 
       if ($ReleaseChoice -eq 1)
       {
-        Release-RC -StartReleasePhase:$StartReleasePhase -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash
+        Release-RC -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash
       }
       elseif ($ReleaseChoice -eq 2)
       {
-        Release-With-RC -StartReleasePhase:$StartReleasePhase -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush
+        Release-With-RC -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush
       } 
     }
     else
@@ -139,18 +139,21 @@ function Release-Support ()
     $NextVersion = Get-Next-Patch $CurrentVersion  
     Write-Host "Next version: '$($NextVersion)'."
 
-    Create-And-Release-Jira-Versions $CurrentVersion $NextVersion
-
     $ReleaseBranchname = "release/v$($CurrentVersion)"
     Check-Branch-Does-Not-Exists $ReleaseBranchname
     
     Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -PrepareNextVersion 
+
     git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
 
     if ($StartReleasePhase)
     {
-      Call-MsBuild-And-Commit -CurrentVersion $CurrentVersion
+      return
     }
+
+    Create-And-Release-Jira-Versions $CurrentVersion $NextVersion
+    
+    Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion
 
     if ($PauseForCommit)
     {
@@ -190,8 +193,6 @@ function Release-On-Master ()
     Write-Host "Please choose next version (open JIRA issues get moved there): "
     $NextVersion = Read-Version-Choice $NextPossibleVersions
 
-    Create-And-Release-Jira-Versions $CurrentVersion $NextVersion
-
     Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -PrepareNextVersion 
 
     git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
@@ -200,6 +201,8 @@ function Release-On-Master ()
     {
       return
     }
+
+    Create-And-Release-Jira-Versions $CurrentVersion $NextVersion
     
     Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion
 
@@ -217,7 +220,6 @@ function Release-Alpha-Beta ()
     param
     (
       [string] $CommitHash,
-      [switch] $StartReleasePhase,
       [switch] $PauseForCommit,
       [switch] $DoNotPush,
       [string] $CurrentVersion
@@ -250,21 +252,18 @@ function Release-Alpha-Beta ()
       Check-Is-On-Branch "develop"
     }
 
+    
+    $PreReleaseBranchname = "prerelease/v$($CurrentVersion)"
+    Check-Branch-Does-Not-Exists $PreReleaseBranchname
+
+    git checkout $CommitHash -b $PreReleaseBranchname 2>&1 | Write-Host
+
     $NextPossibleVersions = Get-Possible-Next-Versions $CurrentVersion
     Write-Host "Please choose next version (open JIRA issues get moved there): "
     $NextVersion = Read-Version-Choice $NextPossibleVersions
    
     Create-And-Release-Jira-Versions $CurrentVersion $NextVersion $TRUE
  
-    $PreReleaseBranchname = "prerelease/v$($CurrentVersion)"
-    Check-Branch-Does-Not-Exists $PreReleaseBranchname
-
-    git checkout $CommitHash -b $PreReleaseBranchname 2>&1 | Write-Host
-
-    if ($StartReleasePhase)
-    {
-      return
-    }
 
     Invoke-MsBuild-And-Commit $CurrentVersion
         
@@ -282,7 +281,6 @@ function Release-RC ()
     param
     (
       [string] $CommitHash,
-      [switch] $StartReleasePhase,
       [switch] $PauseForCommit,
       [switch] $DoNotPush
     )
@@ -307,11 +305,6 @@ function Release-RC ()
     
     git checkout $CommitHash -b $PreReleaseBranchname 2>&1 | Write-Host
 
-    if ($StartReleasePhase)
-    {
-      return
-    }
-
     Invoke-MsBuild-And-Commit $CurrentVersion
     
     if ($PauseForCommit)
@@ -327,7 +320,6 @@ function Release-With-RC ()
     [CmdletBinding()]
     param
     (
-      [switch] $StartReleasePhase,
       [switch] $PauseForCommit,
       [switch] $DoNotPush
     )
@@ -349,11 +341,6 @@ function Release-With-RC ()
     $NextVersion = Read-Version-Choice $PossibleNextVersions
     
     Create-And-Release-Jira-Versions $CurrentVersion $NextVersion
-
-    if ($StartReleasePhase)
-    {
-      return
-    }
 
     Invoke-MsBuild-And-Commit $CurrentVersion
 
