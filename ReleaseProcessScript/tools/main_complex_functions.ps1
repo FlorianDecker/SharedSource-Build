@@ -1,10 +1,23 @@
-function Invoke-MsBuild-And-Commit ($CurrentVersion)
+function Invoke-MsBuild-And-Commit ()
 {
+    param 
+    (
+      [string]$CurrentVersion, 
+      [switch]$PrepareNextVersion
+    )
     $Config = Get-Config-File
 
     $MsBuildPath = $Config.settings.msBuildSettings.msBuildPath
-    $MsBuildSteps = $Config.settings.msBuildSteps.step
     
+    if ($PrepareNextVersion)
+    {
+      $MsBuildSteps = $Config.settings.prepareNextVersionMsBuildSteps.step
+    }
+    else
+    {
+      $MsBuildSteps = $Config.settings.prepareNextReleaseMsBuildSteps.step  
+    }
+
     if ([string]::IsNullOrEmpty($MsBuildPath) )
     {
       return
@@ -101,7 +114,7 @@ function Create-Tag-And-Merge ()
       }
     }
      
-    git commit -m "Merge branch '$($CurrentBranchname)' into develop" 2>&1 |Write-Host
+    git commit -m "Merge branch '$($CurrentBranchname)' into develop" 2>&1 | Write-Host
 
     Resolve-Merge-Conflicts
 

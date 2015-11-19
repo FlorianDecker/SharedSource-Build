@@ -144,6 +144,7 @@ function Release-Support ()
     $ReleaseBranchname = "release/v$($CurrentVersion)"
     Check-Branch-Does-Not-Exists $ReleaseBranchname
     
+    Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -PrepareNextVersion 
     git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
 
     if ($StartReleasePhase)
@@ -190,6 +191,8 @@ function Release-On-Master ()
     $NextVersion = Read-Version-Choice $NextPossibleVersions
 
     Create-And-Release-Jira-Versions $CurrentVersion $NextVersion
+
+    Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -PrepareNextVersion 
 
     git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
     

@@ -33,7 +33,7 @@
     <msBuildSettings xdt:Transform="InsertIfMissing">
       <msBuildPath>C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe</msBuildPath>
     </msBuildSettings>
-    <msBuildSteps xdt:Transform="InsertIfMissing">
+    <prepareNextVersionMsBuildSteps xdt:Transform="InsertIfMissing">
       <step>
         <msBuildCallArguments>
           <argument>Build\Remotion.Local.build</argument>
@@ -41,5 +41,14 @@
         </msBuildCallArguments>
         <commitMessage>Update Assemblyinfo to version '{version}'</commitMessage>
       </step>
-    </msBuildSteps>
+    </prepareNextVersionMsBuildSteps>
+    <prepareNextReleaseMsBuildSteps xdt:Transform="InsertIfMissing">
+      <step>
+        <msBuildCallArguments>
+          <argument>Build\Remotion.Local.build</argument>
+          <argument>/t:TestBuild</argument>
+        </msBuildCallArguments>
+        <commitMessage>Update Assemblyinfo to version '{version}'</commitMessage>
+      </step>
+    </prepareNextReleaseMsBuildSteps>
 </settings>
