@@ -78,12 +78,12 @@ function Push-To-Repos ($Branchname, $WithTags)
             Write-Host "No remote found for Branch. Please choose to which remote the Branch $($Branchname) should set its tracking reference: "
             $RemoteName = Read-Version-Choice  $RemoteUrlArray
           }
+          
+          if ($RemoteNameOfBranch -eq $RemoteName)
+          {
+            $SetUpstream = "-u"
+          }
         } 
-        
-        if ($RemoteNameOfBranch -eq $RemoteName)
-        {
-          $SetUpstream = "-u"
-        }
 
         & git push $SetUpstream $RemoteName $Branchname $PostFix 2>&1 | Write-Host
       }
