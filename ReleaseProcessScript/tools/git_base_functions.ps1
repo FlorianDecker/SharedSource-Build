@@ -249,9 +249,13 @@ function Get-Remote-Of-Branch ($Branchname)
     return git config "branch.$($Branchname).remote"
 }
 
-function Get-Ancestor ()
+function Get-Ancestor ($Branchname)
 {
-  $CurrentBranch = Get-Current-Branchname
+  if ([string]::IsNullOrEmpty($Branchname))
+  {
+    $Branchname = Get-Current-Branchname
+  }
   
-  return git show-branch | where-object { $_.Contains('*') -eq $TRUE } | Where-object { $_.Contains($CurrentBranch) -ne $TRUE } | select -first 1 | % {$_ -replace('.*\[(.*)\].*','$1')} | % { $_ -replace('[\^~].*','') }
+  return git show-branch | where-object { $_.Contains('*') -eq $TRUE } | Where-object { $_.Contains($Branchname) -ne $TRUE } | select -first 1 | % {$_ -replace('.*\[(.*)\].*','$1')} | % { $_ -replace('[\^~].*','') }
+
 }
