@@ -26,10 +26,18 @@
     <remoteRepositories xdt:Transform="InsertIfMissing">
       <remoteUrl></remoteUrl>
     </remoteRepositories>
-    <mergeExcludedFiles xdt:Transform="InsertIfMissing">
+    <prereleaseMergeIgnoreList xdt:Transform="InsertIfMissing">
       <fileName></fileName>
       <fileName></fileName>
-    </mergeExcludedFiles>
+    </prereleaseMergeIgnoreList>
+    <tagStableMergeIgnoreList xdt:Transform="InsertIfMissing">
+      <fileName></fileName>
+      <fileName></fileName>
+    </tagStableMergeIgnoreList>
+	<developStableMergeIgnoreList xdt:Transform="InsertIfMissing">
+      <fileName></fileName>
+      <fileName></fileName>
+    </developStableMergeIgnoreList>
     <msBuildSettings xdt:Transform="InsertIfMissing">
       <msBuildPath>C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe</msBuildPath>
     </msBuildSettings>

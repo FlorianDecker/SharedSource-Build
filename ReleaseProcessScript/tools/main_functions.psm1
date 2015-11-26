@@ -403,8 +403,12 @@ function Continue-Support-Release ()
 
     git checkout $SupportBranchname --quiet
 
-    git merge "release/v$($CurrentVersion)" --no-ff 2>&1
-    
+    git merge "release/v$($CurrentVersion)" --no-ff --no-commit 2>&1 | Write-Host 
+    Reset-Items-Of-Ignore-List -ListToBeIgnored "tagStableMergeIgnoreList" 
+    git commit -m "Merge branch '"release/v$($CurrentVersion)"' into $($SupportBranchName)" 2>&1 | Write-Host
+
+    Resolve-Merge-Conflicts
+
     git tag -a $Tagname -m $Tagname 2>&1
 
     if ($DoNotPush)
@@ -472,18 +476,7 @@ function Continue-Pre-Release ()
     Check-Branch-Exists-And-Up-To-Date $MergeBranchName
     
     git merge $CurrentBranchname --no-ff --no-commit 2>&1 | Write-Host
-    
-    $ConfigFile = Get-Config-File
-
-    foreach ($File in $ConfigFile.settings.mergeExcludedFiles.fileName)
-    {
-      if (-Not [string]::IsNullOrEmpty($File) )
-      {
-        git reset HEAD $File
-        git checkout -- $File
-      }
-    }
-     
+    Reset-Items-Of-Ignore-List -ListToBeIgnored "prereleaseMergeIgnoreList"
     git commit -m "Merge branch '$($CurrentBranchname)' into $($MergeBranchName)" 2>&1 | Write-Host
 
     Resolve-Merge-Conflicts

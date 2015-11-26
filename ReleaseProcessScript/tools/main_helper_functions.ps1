@@ -99,3 +99,37 @@ function Check-Working-Directory ()
       }
     }
 }
+
+function Reset-Items-Of-Ignore-List ()
+{
+    param
+    (
+      [string]$ListToBeIgnored
+    )
+
+    $ConfigFile = Get-Config-File
+
+    $IgnoredFiles = ""
+        
+    if ($ListToBeIgnored -eq "prereleaseMergeIgnoreList")
+    {
+      $IgnoredFiles = $ConfigFile.settings.prereleaseMergeIgnoreList.fileName
+    }
+    elseif ($ListToBeIgnored -eq "tagStableMergeIgnoreList")
+    {
+      $IgnoredFiles = $ConfigFile.settings.tagStableMergeIgnoreList.fileName
+    }
+    elseif ($ListToBeIgnored -eq "developStableMergeIgnoreList")
+    {
+      $IgnoredFiles = $ConfigFile.settings.developStableMergeIgnoreList.fileName
+    }
+
+    foreach ($File in $IgnoredFiles)
+    {
+      if (-Not [string]::IsNullOrEmpty($File) )
+      {
+        git reset HEAD $File
+        git checkout -- $File
+      }
+    }
+}

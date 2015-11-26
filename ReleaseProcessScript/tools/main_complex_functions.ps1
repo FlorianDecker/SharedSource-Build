@@ -105,17 +105,8 @@ function Create-Tag-And-Merge ()
     Check-Branch-Up-To-Date "develop"
     git merge $CurrentBranchname --no-ff --no-commit 2>&1
     
-    $ConfigFile = Get-Config-File
-
-    foreach ($File in $ConfigFile.settings.mergeExcludedFiles.fileName)
-    {
-      if (-not [string]::IsNullOrEmpty($File) )
-      {
-        git reset HEAD $File
-        git checkout -- $File
-      }
-    }
-     
+    Reset-Items-Of-Ignore-List -ListToBeIgnored "developStableMergeIgnoreList" 
+    
     git commit -m "Merge branch '$($CurrentBranchname)' into develop" 2>&1 | Write-Host
 
     Resolve-Merge-Conflicts
