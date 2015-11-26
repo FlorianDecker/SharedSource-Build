@@ -5,6 +5,8 @@ function Invoke-MsBuild-And-Commit ()
       [string]$CurrentVersion, 
       [switch]$PrepareNextVersion
     )
+
+
     $Config = Get-Config-File
 
     $MsBuildPath = $Config.settings.msBuildSettings.msBuildPath
@@ -15,7 +17,7 @@ function Invoke-MsBuild-And-Commit ()
     }
     else
     {
-      $MsBuildSteps = $Config.settings.prepareNextReleaseMsBuildSteps.step  
+      $MsBuildSteps = $Config.settings.developmentForNextReleaseMsBuildSteps.step  
     }
 
     if ([string]::IsNullOrEmpty($MsBuildPath) )
