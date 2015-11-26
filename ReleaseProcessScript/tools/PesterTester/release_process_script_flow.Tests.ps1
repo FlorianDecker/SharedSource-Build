@@ -17,6 +17,8 @@ Describe "release_process_script_flow" {
       Get-Config-File
       $ConfigFilePath = Get-Config-File-Path
       Mock -ModuleName main_functions Get-Config-File-Path { return $ConfigFilePath }
+      Mock -ModuleName main_functions Invoke-MsBuild-And-Commit { return }
+      Mock -ModuleName main_functions Push-To-Repos { return }
 
       Test-Create-Repository $TestDirName
       cd $PSScriptRoot"\"$TestDirName
@@ -29,7 +31,7 @@ Describe "release_process_script_flow" {
       Remove-Item -Recurse -Force $PseudoRemoteTestDir 2>&1 | Out-Null
     }
 
-    Context "Release-Version" {
+    Context "Release-Version Initial Choice" {
         It "Release-Version_OnSupportBranch_MockChoiceAlpha" {
            Mock -ModuleName main_functions Get-Support-Current-Version { return "1.1.1-alpha.1" }
            Mock -ModuleName main_functions Release-Alpha-Beta { return }
@@ -44,6 +46,7 @@ Describe "release_process_script_flow" {
        It "Release-Version_OnSupportBranch_MockChoicePatch" {
            Mock -ModuleName main_functions Get-Support-Current-Version { return "1.1.1" }
            Mock -ModuleName main_functions Release-Support { return }
+
            git checkout -b "support/v1.1" --quiet
            
            Release-Version
@@ -52,9 +55,10 @@ Describe "release_process_script_flow" {
        }
 
        It "Release-Version_OnReleaseBranch_MockChoiceReleaseRC" {
-           git checkout -b "release/v1.0.0" --quiet
            Mock -ModuleName main_functions Read-Release-Branch-Mode-Choice { return 1 }
            Mock -ModuleName main_functions Release-RC { return }
+
+           git checkout -b "release/v1.0.0" --quiet
 
            Release-Version
 
@@ -62,9 +66,10 @@ Describe "release_process_script_flow" {
        }
        
        It "Release-Version_OnReleaseBranch_MockChoiceReleaseOnMaster" {
-           git checkout -b "release/v1.0.0" --quiet
            Mock -ModuleName main_functions Read-Release-Branch-Mode-Choice { return 2 }
            Mock -ModuleName main_functions Release-With-RC { return }
+
+           git checkout -b "release/v1.0.0" --quiet
 
            Release-Version
 
@@ -90,6 +95,7 @@ Describe "release_process_script_flow" {
 
            Assert-MockCalled -ModuleName main_functions Release-On-Master -Times 1
        }
+    }
 
     }
 }
