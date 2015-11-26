@@ -97,5 +97,63 @@ Describe "release_process_script_flow" {
        }
     }
 
+    Context "Release-Version Functions called" {
+        It "ReleaseVersion_OnSupport_ReleaseSupport_ReleaseAlpha" {
+           Mock -ModuleName main_functions Get-Support-Current-Version { return "1.1.1-alpha.1" }
+           Mock -ModuleName main_functions Read-Version-Choice { return "1.1.1-alpha.2" }
+           git checkout -b "support/v1.1" --quiet
+           Test-Add-Commit
+
+           { Release-Version }| Should Not Throw
+        }    
+
+        It "ReleaseVersion_OnSupport_ReleaseSupport_ReleasePatch" {
+           Mock -ModuleName main_functions Get-Support-Current-Version { return "1.1.1" }
+           Mock -ModuleName main_functions Read-Version-Choice { return "1.1.2" }
+
+           git checkout -b "support/v1.1" --quiet
+
+           { Release-Version }| Should Not Throw
+        }
+        
+        It "Release-Version_OnReleaseBranch_ReleaseRC" {
+           Mock -ModuleName main_functions Read-Release-Branch-Mode-Choice { return 1 }
+           Mock -ModuleName main_functions Read-Version-Choice { return "1.0.0-rc.2" }
+           
+           git checkout -b "develop" --quiet
+           Test-Add-Commit
+
+
+           git checkout -b "release/v1.0.0" --quiet
+
+           { Release-Version }| Should Not Throw       
+        }    
+
+        It "Release-Version_OnReleaseBranch_ReleaseOnMaster" {
+           Mock -ModuleName main_functions Read-Release-Branch-Mode-Choice { return 2 }
+           Mock -ModuleName main_functions Read-Version-Choice { return "1.1.0" }
+
+           git checkout -b "develop" --quiet
+           Test-Add-Commit
+           git checkout -b "release/v1.0.0" --quiet
+
+           { Release-Version }| Should Not Throw       
+        }
+        
+        It "Release-Version_OnDevelopBranch_ReleaseAlpha" {
+           Mock -ModuleName main_functions Get-Develop-Current-Version { return "1.2.0-alpha.1" }
+           Mock -ModuleName main_functions Read-Version-Choice { return "1.2.0-alpha.2" }
+           git checkout -b develop --quiet
+
+           { Release-Version }| Should Not Throw     
+       }
+
+       It "Release-Version_OnDevelopBranch_ReleaseMinor" {
+           Mock -ModuleName main_functions Get-Develop-Current-Version { return "1.3.0" }
+           Mock -ModuleName main_functions Read-Version-Choice { return "1.3.0-alpha.1" }
+           git checkout -b develop --quiet
+
+           { Release-Version }| Should Not Throw     
+       }    
     }
 }
