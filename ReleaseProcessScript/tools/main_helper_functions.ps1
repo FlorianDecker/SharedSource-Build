@@ -133,3 +133,11 @@ function Reset-Items-Of-Ignore-List ()
       }
     }
 }
+
+function Merge-Branch-With-Reset ($CurrentBranchname, $MergeBranchname, $IgnoreList)
+{
+    git merge $MergeBranchname --no-ff --no-commit 2>&1 | Write-Host
+    Reset-Items-Of-Ignore-List -ListToBeIgnored $IgnoreList
+    git commit -m "Merge branch '$($MergeBranchname)' into $($CurrentBranchName)" 2>&1 | Write-Host
+    Resolve-Merge-Conflicts
+}

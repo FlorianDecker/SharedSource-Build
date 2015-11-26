@@ -403,11 +403,7 @@ function Continue-Support-Release ()
 
     git checkout $SupportBranchname --quiet
 
-    git merge "release/v$($CurrentVersion)" --no-ff --no-commit 2>&1 | Write-Host 
-    Reset-Items-Of-Ignore-List -ListToBeIgnored "tagStableMergeIgnoreList" 
-    git commit -m "Merge branch '"release/v$($CurrentVersion)"' into $($SupportBranchName)" 2>&1 | Write-Host
-
-    Resolve-Merge-Conflicts
+    Merge-Branch-With-Reset $SupportBranchname "release/v$($CurrentVersion)" tagStableMergeIgnoreList
 
     git tag -a $Tagname -m $Tagname 2>&1
 
@@ -459,10 +455,13 @@ function Continue-Pre-Release ()
 
     Check-Working-Directory
     Check-Is-On-Branch "prerelease/"
-    $CurrentBranchname = Get-Current-Branchname
+    $PrereleaseBranchname = Get-Current-Branchname
+    $BaseBranchname = Get-Ancestor
+    
+    Check-Branch-Up-To-Date $PrereleaseBranchname
+    Check-Branch-Up-To-Date $BaseBranchname
+    
     $Tagname = "v$($CurrentVersion)"
-
-    Check-Branch-Up-To-Date $CurrentBranchname
 
     if (Get-Tag-Exists $Tagname)
     {
@@ -471,17 +470,10 @@ function Continue-Pre-Release ()
 
     git tag -a "$($Tagname)" -m "$($Tagname)" 2>&1 > $NULL    
 
-    $MergeBranchName = Get-Ancestor
+    git checkout $BaseBranchname
 
-    Check-Branch-Exists-And-Up-To-Date $MergeBranchName
+    Merge-Branch-With-Reset $BaseBranchname $PrereleaseBranchname "prereleaseMergeIgnoreList"
     
-    git merge $CurrentBranchname --no-ff --no-commit 2>&1 | Write-Host
-    Reset-Items-Of-Ignore-List -ListToBeIgnored "prereleaseMergeIgnoreList"
-    git commit -m "Merge branch '$($CurrentBranchname)' into $($MergeBranchName)" 2>&1 | Write-Host
-
-    Resolve-Merge-Conflicts
-      
-
     if ($DoNotPush)
     {
       return

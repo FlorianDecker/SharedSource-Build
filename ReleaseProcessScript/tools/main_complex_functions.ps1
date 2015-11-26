@@ -103,13 +103,8 @@ function Create-Tag-And-Merge ()
     Resolve-Merge-Conflicts
 
     Check-Branch-Up-To-Date "develop"
-    git merge $CurrentBranchname --no-ff --no-commit 2>&1
     
-    Reset-Items-Of-Ignore-List -ListToBeIgnored "developStableMergeIgnoreList" 
-    
-    git commit -m "Merge branch '$($CurrentBranchname)' into develop" 2>&1 | Write-Host
-
-    Resolve-Merge-Conflicts
+    Merge-Branch-With-Reset "develop" $CurrentBranchname "developStableMergeIgnoreList"
 
     git checkout master 2>&1 > $NULL
     git tag -a "v$($CurrentVersion)" -m "v$($currentVersion)" 2>&1 > $NULL
