@@ -20,9 +20,11 @@ function Get-Possible-Next-Versions-Develop ($Version, $WithoutPrerelease)
 
     $NextMajor = [string](1 + $Major)
     $NextMinor = [string](1 + $Minor)
+    $NextPatch = [string](1 + $Patch)
     
     $NextPossibleMajor = "$($NextMajor).0.0"
     $NextPossibleMinor = "$($Major).$($NextMinor).0"
+    $NextPossiblePatch = "$($Major).$($Minor).$($NextPatch)"
 
     #Compute 1.2.3-alpha.4 
     if ($Match.Groups["pre"].Success)
