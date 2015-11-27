@@ -1,11 +1,10 @@
-Import-Module $PSScriptRoot"\..\main_functions.psm1" -Force -DisableNameChecking
-
+. $PSScriptRoot"\..\Core\main_functions.ps1"
 . $PSScriptRoot"\Test_Functions.ps1"
-. $PSScriptRoot"\..\config_functions.ps1"
-. $PSScriptRoot"\..\jira_functions.ps1"
-. $PSScriptRoot"\..\main_complex_functions.ps1"
-. $PSScriptRoot"\..\main_helper_functions.ps1"
-. $PSScriptRoot"\..\read_functions.ps1"
+. $PSScriptRoot"\..\Core\config_functions.ps1"
+. $PSScriptRoot"\..\Core\jira_functions.ps1"
+. $PSScriptRoot"\..\Core\main_complex_functions.ps1"
+. $PSScriptRoot"\..\Core\main_helper_functions.ps1"
+. $PSScriptRoot"\..\Core\read_functions.ps1"
 
 
 $TestDirName = "GitUnitTestDir"
@@ -16,9 +15,9 @@ Describe "release_process_script_flow" {
     BeforeEach {
       Get-Config-File
       $ConfigFilePath = Get-Config-File-Path
-      Mock -ModuleName main_functions Get-Config-File-Path { return $ConfigFilePath }
-      Mock -ModuleName main_functions Invoke-MsBuild-And-Commit { return }
-      Mock -ModuleName main_functions Push-To-Repos { return }
+      Mock Get-Config-File-Path { return $ConfigFilePath }
+      Mock Invoke-MsBuild-And-Commit { return }
+      Mock Push-To-Repos { return }
 
       Test-Create-Repository $TestDirName
       cd $PSScriptRoot"\"$TestDirName
@@ -33,74 +32,74 @@ Describe "release_process_script_flow" {
 
     Context "Release-Version Initial Choice" {
         It "Release-Version_OnSupportBranch_MockChoiceAlpha" {
-           Mock -ModuleName main_functions Get-Support-Current-Version { return "1.1.1-alpha.1" }
-           Mock -ModuleName main_functions Release-Alpha-Beta { return }
+           Mock Get-Support-Current-Version { return "1.1.1-alpha.1" }
+           Mock Release-Alpha-Beta { return }
 
            git checkout -b "support/v1.1" --quiet
 
            Release-Version 
 
-           Assert-MockCalled -ModuleName main_functions Release-Alpha-Beta -Times 1
+           Assert-MockCalled Release-Alpha-Beta -Times 1
        }
        
        It "Release-Version_OnSupportBranch_MockChoicePatch" {
-           Mock -ModuleName main_functions Get-Support-Current-Version { return "1.1.1" }
-           Mock -ModuleName main_functions Release-Support { return }
+           Mock Get-Support-Current-Version { return "1.1.1" }
+           Mock Release-Support { return }
 
            git checkout -b "support/v1.1" --quiet
            
            Release-Version
 
-           Assert-MockCalled -ModuleName main_functions Release-Support -Times 1
+           Assert-MockCalled Release-Support -Times 1
        }
 
        It "Release-Version_OnReleaseBranch_MockChoiceReleaseRC" {
-           Mock -ModuleName main_functions Read-Release-Branch-Mode-Choice { return 1 }
-           Mock -ModuleName main_functions Release-RC { return }
+           Mock Read-Release-Branch-Mode-Choice { return 1 }
+           Mock Release-RC { return }
 
            git checkout -b "release/v1.0.0" --quiet
 
            Release-Version
 
-           Assert-MockCalled -ModuleName main_functions Release-RC -Times 1
+           Assert-MockCalled Release-RC -Times 1
        }
        
        It "Release-Version_OnReleaseBranch_MockChoiceReleaseOnMaster" {
-           Mock -ModuleName main_functions Read-Release-Branch-Mode-Choice { return 2 }
-           Mock -ModuleName main_functions Release-With-RC { return }
+           Mock Read-Release-Branch-Mode-Choice { return 2 }
+           Mock Release-With-RC { return }
 
            git checkout -b "release/v1.0.0" --quiet
 
            Release-Version
 
-           Assert-MockCalled -ModuleName main_functions Release-With-RC -Times 1
+           Assert-MockCalled Release-With-RC -Times 1
        }
 
        It "Release-Version_OnDevelopBranch_MockChoiceAlpha" {
-           Mock -ModuleName main_functions Get-Develop-Current-Version { return "1.2.0-alpha.1" }
-           Mock -ModuleName main_functions Release-Alpha-Beta { return }
+           Mock Get-Develop-Current-Version { return "1.2.0-alpha.1" }
+           Mock Release-Alpha-Beta { return }
            git checkout -b develop --quiet
 
            Release-Version
 
-           Assert-MockCalled -ModuleName main_functions Release-With-RC -Times 1
+           Assert-MockCalled Release-With-RC -Times 1
        }
 
        It "Release-Version_OnDevelopBranch_MockChoiceMinor" {
-           Mock -ModuleName main_functions Get-Develop-Current-Version { return "1.3.0" }
-           Mock -ModuleName main_functions Release-On-Master { return }
+           Mock Get-Develop-Current-Version { return "1.3.0" }
+           Mock Release-On-Master { return }
            git checkout -b develop --quiet
            
            Release-Version
 
-           Assert-MockCalled -ModuleName main_functions Release-On-Master -Times 1
+           Assert-MockCalled Release-On-Master -Times 1
        }
     }
 
     Context "Release-Version Functions called" {
         It "ReleaseVersion_OnSupport_ReleaseSupport_ReleaseAlpha" {
-           Mock -ModuleName main_functions Get-Support-Current-Version { return "1.1.1-alpha.1" }
-           Mock -ModuleName main_functions Read-Version-Choice { return "1.1.1-alpha.2" }
+           Mock Get-Support-Current-Version { return "1.1.1-alpha.1" }
+           Mock Read-Version-Choice { return "1.1.1-alpha.2" }
            git checkout -b "support/v1.1" --quiet
            Test-Add-Commit
 
@@ -108,8 +107,8 @@ Describe "release_process_script_flow" {
         }    
 
         It "ReleaseVersion_OnSupport_ReleaseSupport_ReleasePatch" {
-           Mock -ModuleName main_functions Get-Support-Current-Version { return "1.1.1" }
-           Mock -ModuleName main_functions Read-Version-Choice { return "1.1.2" }
+           Mock Get-Support-Current-Version { return "1.1.1" }
+           Mock Read-Version-Choice { return "1.1.2" }
 
            git checkout -b "support/v1.1" --quiet
 
@@ -117,8 +116,8 @@ Describe "release_process_script_flow" {
         }
         
         It "Release-Version_OnReleaseBranch_ReleaseRC" {
-           Mock -ModuleName main_functions Read-Release-Branch-Mode-Choice { return 1 }
-           Mock -ModuleName main_functions Read-Version-Choice { return "1.0.0-rc.2" }
+           Mock Read-Release-Branch-Mode-Choice { return 1 }
+           Mock Read-Version-Choice { return "1.0.0-rc.2" }
            
            git checkout -b "develop" --quiet
            Test-Add-Commit
@@ -130,8 +129,8 @@ Describe "release_process_script_flow" {
         }    
 
         It "Release-Version_OnReleaseBranch_ReleaseOnMaster" {
-           Mock -ModuleName main_functions Read-Release-Branch-Mode-Choice { return 2 }
-           Mock -ModuleName main_functions Read-Version-Choice { return "1.1.0" }
+           Mock Read-Release-Branch-Mode-Choice { return 2 }
+           Mock Read-Version-Choice { return "1.1.0" }
 
            git checkout -b "develop" --quiet
            Test-Add-Commit
@@ -141,16 +140,16 @@ Describe "release_process_script_flow" {
         }
         
         It "Release-Version_OnDevelopBranch_ReleaseAlpha" {
-           Mock -ModuleName main_functions Get-Develop-Current-Version { return "1.2.0-alpha.1" }
-           Mock -ModuleName main_functions Read-Version-Choice { return "1.2.0-alpha.2" }
+           Mock Get-Develop-Current-Version { return "1.2.0-alpha.1" }
+           Mock Read-Version-Choice { return "1.2.0-alpha.2" }
            git checkout -b develop --quiet
 
            { Release-Version }| Should Not Throw     
        }
 
        It "Release-Version_OnDevelopBranch_ReleaseMinor" {
-           Mock -ModuleName main_functions Get-Develop-Current-Version { return "1.3.0" }
-           Mock -ModuleName main_functions Read-Version-Choice { return "1.3.0-alpha.1" }
+           Mock Get-Develop-Current-Version { return "1.3.0" }
+           Mock Read-Version-Choice { return "1.3.0-alpha.1" }
            git checkout -b develop --quiet
 
            { Release-Version }| Should Not Throw     

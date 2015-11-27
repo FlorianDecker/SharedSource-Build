@@ -1,12 +1,11 @@
 
-Import-Module $PSScriptRoot"\..\main_functions.psm1" -Force -DisableNameChecking
-
+. $PSScriptRoot"\..\Core\main_functions.ps1"
 . $PSScriptRoot"\Test_Functions.ps1"
-. $PSScriptRoot"\..\config_functions.ps1"
-. $PSScriptRoot"\..\jira_functions.ps1"
-. $PSScriptRoot"\..\main_complex_functions.ps1"
-. $PSScriptRoot"\..\main_helper_functions.ps1"
-. $PSScriptRoot"\..\read_functions.ps1"
+. $PSScriptRoot"\..\Core\config_functions.ps1"
+. $PSScriptRoot"\..\Core\jira_functions.ps1"
+. $PSScriptRoot"\..\Core\main_complex_functions.ps1"
+. $PSScriptRoot"\..\Core\main_helper_functions.ps1"
+. $PSScriptRoot"\..\Core\read_functions.ps1"
 
 
 $TestDirName = "GitUnitTestDir"
@@ -17,7 +16,7 @@ Describe "main_functions" {
     BeforeEach {
       Get-Config-File
       $ConfigFilePath = Get-Config-File-Path
-      Mock -ModuleName main_functions Get-Config-File-Path { return $ConfigFilePath }
+      Mock Get-Config-File-Path { return $ConfigFilePath }
 
       Test-Create-Repository $TestDirName
       cd $PSScriptRoot"\"$TestDirName

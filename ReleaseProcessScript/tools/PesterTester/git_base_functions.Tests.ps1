@@ -1,4 +1,4 @@
-﻿. $PSScriptRoot"\..\git_base_functions.ps1"
+﻿. $PSScriptRoot"\..\Core\git_base_functions.ps1"
 . $PSScriptRoot"\Test_Functions.ps1"
 
 $TestDirName = "GitUnitTestDir"

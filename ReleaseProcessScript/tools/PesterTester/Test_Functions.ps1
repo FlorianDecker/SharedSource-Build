@@ -38,9 +38,9 @@ function Test-Create-And-Add-Remote ($TestDirName, $PseudoRemoteTestDir)
 
 function Test-Mock-All-Jira-Functions()
 {
-    Mock -ModuleName main_functions Jira-Create-Version { return $TRUE }
-    Mock -ModuleName main_functions Jira-Get-Current-Version { return "1.2.3" }
-    Mock -ModuleName main_functions Jira-Release-Version { return $TRUE }
-    Mock -ModuleName main_functions Jira-Release-Version-And-Squash-Unreleased { return $TRUE }
-    Mock -ModuleName main_functions Jira-Check-Credentials { return $TRUE }
+    Mock Jira-Create-Version { return $TRUE }
+    Mock Jira-Get-Current-Version { return "1.2.3" }
+    Mock Jira-Release-Version { return $TRUE }
+    Mock Jira-Release-Version-And-Squash-Unreleased { return $TRUE }
+    Mock Jira-Check-Credentials { return $TRUE }
 }

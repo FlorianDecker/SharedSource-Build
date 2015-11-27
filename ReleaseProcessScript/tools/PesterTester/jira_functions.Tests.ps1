@@ -1,5 +1,5 @@
 . $PSScriptRoot"\Test_Functions.ps1"
-. $PSScriptRoot"\..\jira_functions.ps1"
+. $PSScriptRoot"\..\Core\jira_functions.ps1"
 
 Describe "jira_functions" {
     Context "Add-JiraUrlPostfix-To-Config-Url" {

@@ -1,4 +1,4 @@
-. $PSScriptRoot"\..\semver_functions.ps1"
+. $PSScriptRoot"\..\Core\semver_functions.ps1"
 
 Describe "semver_functions" {
 
