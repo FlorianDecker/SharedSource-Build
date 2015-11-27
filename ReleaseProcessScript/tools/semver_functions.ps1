@@ -116,15 +116,9 @@ function Get-Next-Rc ($CurrentVersion)
       {
         return "$($Major).$($Minor).$($Patch)-rc.$($NextPreVersion)"
       }
-      else
-      {
-        return "$($Major).$($Minor).$($Patch)-rc.1"
-      }
     }      
-    else
-    {
-      return "$($Major).$($Minor).$($Patch)-rc.1"
-    }
+    
+    return "$($Major).$($Minor).$($Patch)-rc.1"
 }
 
 function Get-Next-AlphaBeta ($CurrentVersion)
