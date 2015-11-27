@@ -3,7 +3,7 @@ function Invoke-MsBuild-And-Commit ()
     param 
     (
       [string]$CurrentVersion, 
-      [switch]$PrepareNextVersion
+      [string]$MsBuildMode
     )
 
 
@@ -11,13 +11,17 @@ function Invoke-MsBuild-And-Commit ()
 
     $MsBuildPath = $Config.settings.msBuildSettings.msBuildPath
     
-    if ($PrepareNextVersion)
+    if ($MsBuildMode -eq "prepareNextVersion")
     {
       $MsBuildSteps = $Config.settings.prepareNextVersionMsBuildSteps.step
     }
-    else
+    elseif ($MsBuildMode -eq "developmentForNextRelease")
     {
       $MsBuildSteps = $Config.settings.developmentForNextReleaseMsBuildSteps.step  
+    }
+    else
+    {
+      Write-Error "Invalid Parameter in Invoke-Ms-Build-And-Commit. No MsBuildStepsCompleted. Please check if -MsBuildMode parameter is equivalent with the value in releaseProcessScript.config"
     }
 
     if ([string]::IsNullOrEmpty($MsBuildPath) )

@@ -50,7 +50,7 @@
         <commitMessage>Update Assemblyinfo to version '{version}'</commitMessage>
       </step>
     </prepareNextVersionMsBuildSteps>
-    <developmentForNextReleaseBuildSteps xdt:Transform="InsertIfMissing">
+    <developmentForNextReleaseMsBuildSteps xdt:Transform="InsertIfMissing">
       <step>
         <msBuildCallArguments>
           <argument>Build\Remotion.Local.build</argument>

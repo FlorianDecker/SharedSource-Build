@@ -135,7 +135,7 @@ function Release-Support ()
     $ReleaseBranchname = "release/v$($CurrentVersion)"
     Check-Branch-Does-Not-Exists $ReleaseBranchname
     
-    Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -PrepareNextVersion 
+    Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -MsBuildMode "developmentForNextRelease"
 
     git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
 
@@ -144,9 +144,9 @@ function Release-Support ()
       return
     }
 
-    Create-And-Release-Jira-Versions $CurrentVersion $NextVersion
+    Create-And-Release-Jira-Versions $CurrentVersion $NextVersion 
     
-    Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion
+    Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -MsBuildMode "prepareNextVersion" 
 
     if ($PauseForCommit)
     {
@@ -181,9 +181,10 @@ function Release-On-Master ()
 
     $ReleaseBranchname = "release/v$($CurrentVersion)"
     Check-Branch-Does-Not-Exists $ReleaseBranchname
-
-    Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -PrepareNextVersion 
-
+    
+    Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -MsBuildMode "developmentForNextRelease"
+    
+     
     git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
     
     if ($StartReleasePhase)
@@ -197,7 +198,7 @@ function Release-On-Master ()
 
     Create-And-Release-Jira-Versions $CurrentVersion $NextVersion
     
-    Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion
+    Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -MsBuildMode "prepareNextVersion" 
 
     if ($PauseForCommit)
     {
@@ -262,7 +263,7 @@ function Release-Alpha-Beta ()
     Create-And-Release-Jira-Versions $CurrentVersion $NextVersion $TRUE
  
 
-    Invoke-MsBuild-And-Commit $CurrentVersion
+    Invoke-MsBuild-And-Commit $CurrentVersion -MsBuildMode "prepareNextVersion" 
         
     if ($PauseForCommit)
     {
@@ -311,7 +312,7 @@ function Release-RC ()
     
     git checkout $CommitHash -b $PreReleaseBranchname 2>&1 | Write-Host
 
-    Invoke-MsBuild-And-Commit $CurrentVersion
+    Invoke-MsBuild-And-Commit $CurrentVersion -MsBuildMode "prepareNextVersion" 
     
     if ($PauseForCommit)
     {
@@ -359,7 +360,7 @@ function Release-With-RC ()
     
     Create-And-Release-Jira-Versions $CurrentVersion $NextVersion
 
-    Invoke-MsBuild-And-Commit $CurrentVersion
+    Invoke-MsBuild-And-Commit $CurrentVersion -MsBuildMode "prepareNextVersion" 
 
     if ($PauseForCommit)
     {
@@ -403,7 +404,7 @@ function Continue-Support-Release ()
 
     git checkout $SupportBranchname --quiet
 
-    Merge-Branch-With-Reset $SupportBranchname "release/v$($CurrentVersion)" tagStableMergeIgnoreList
+    Merge-Branch-With-Reset $SupportBranchname "release/v$($CurrentVersion)" "tagStableMergeIgnoreList"
 
     git tag -a $Tagname -m $Tagname 2>&1
 
@@ -469,8 +470,6 @@ function Continue-Pre-Release ()
     }
 
     git tag -a "$($Tagname)" -m "$($Tagname)" 2>&1 > $NULL    
-
-    git checkout $BaseBranchname
 
     Merge-Branch-With-Reset $BaseBranchname $PrereleaseBranchname "prereleaseMergeIgnoreList"
     
