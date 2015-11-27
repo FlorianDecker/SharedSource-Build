@@ -1,6 +1,6 @@
 $Location = $PSScriptRoot
 
-. $Location"\main_functions.psm1"
+. $Location"\Core\main_functions.ps1"
 
 
 function New-Version ()
@@ -98,7 +98,7 @@ function Push-Remote-Repositories ()
     Optional <switch> Parameter. If given, tags on the branch also get pushed
 
     .NOTE
-    If the Branch has no tracking branch on a remote configured, the remote takes the remote defined for the ancestor branch.
+    If the Branch has no tracking branch on a remote configured, the remote takes the remote tracking reference defined for the ancestor branch.
     #>
 
     [CmdletBinding()]
@@ -111,3 +111,8 @@ function Push-Remote-Repositories ()
 
     Push-To-Repos $Branchname $WithTags
 }
+
+Export-ModuleMember -Function New-Version
+Export-ModuleMember -Function New-Releasebranch
+Export-ModuleMember -Function Complete-Version
+Export-ModuleMember -Function Push-Remote-Repositories

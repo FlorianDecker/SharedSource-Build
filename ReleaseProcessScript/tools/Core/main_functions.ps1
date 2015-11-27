@@ -466,5 +466,3 @@ function Continue-Pre-Release ()
     Push-To-Repos $MergeBranchName
     Push-To-Repos $CurrentBranchname $TRUE
 }
-
-Export-ModuleMember -Function *

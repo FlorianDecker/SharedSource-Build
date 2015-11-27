@@ -11,5 +11,5 @@ function Get-Dll ($Path)
     $AssemblyLoaded = [System.Reflection.Assembly]::Load($AssemblyBytes)
 }
 
-Get-Dll $Location"\..\lib\RestSharp.dll" > $NULL
-Get-Dll $Location"\..\lib\Remotion.BuildTools.MSBuildTasks.dll" > $NULL
+Get-Dll $Location"\..\..\lib\RestSharp.dll" > $NULL
+Get-Dll $Location"\..\..\lib\Remotion.BuildTools.MSBuildTasks.dll" > $NULL
