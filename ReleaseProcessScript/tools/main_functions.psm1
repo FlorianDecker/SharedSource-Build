@@ -97,11 +97,11 @@ function Continue-Release()
 
       if ($Ancestor -eq "develop" )
       {
-        Continue-Master-Release $CurrentVersion -DoNotPush:$DoNotPush
+        Continue-Master-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
       } 
       else
       {
-        Continue-Support-Release $CurrentVersion -DoNotPush:$DoNotPush
+        Continue-Support-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
       }    
     }
     else
@@ -116,6 +116,7 @@ function Release-Support ()
     param
     (
       [string] $CommitHash,
+      [Parameter(Mandatory=$true)]
       [string] $CurrentVersion,
       [switch] $StartReleasePhase,
       [switch] $PauseForCommit,
@@ -162,10 +163,11 @@ function Release-On-Master ()
     param
     (
       [string] $CommitHash,
+      [Parameter(Mandatory=$true)]
+      [string] $CurrentVersion,
       [switch] $StartReleasePhase,
       [switch] $PauseForCommit,
-      [switch] $DoNotPush,
-      [string] $CurrentVersion
+      [switch] $DoNotPush
     )
 
     Check-Working-Directory
@@ -174,16 +176,10 @@ function Release-On-Master ()
     $CurrentBranchname = Get-Current-Branchname
     Check-Is-On-Branch "develop"
 
-    if ([string]::IsNullOrEmpty($CurrentVersion) )
-    {
-      $CurrentVersion = Get-Develop-Current-Version
-    }
-
     $ReleaseBranchname = "release/v$($CurrentVersion)"
     Check-Branch-Does-Not-Exists $ReleaseBranchname
     
     Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -MsBuildMode "developmentForNextRelease"
-    
      
     git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
     
@@ -214,28 +210,14 @@ function Release-Alpha-Beta ()
     param
     (
       [string] $CommitHash,
+      [Parameter(Mandatory=$true)]
+      [string] $CurrentVersion,
       [switch] $PauseForCommit,
-      [switch] $DoNotPush,
-      [string] $CurrentVersion
+      [switch] $DoNotPush
     )
 
     Check-Working-Directory
     Check-Commit-Hash $CommitHash
-
-    if ([string]::IsNullOrEmpty($CurrentVersion) )
-    {
-      $VersionFromTag = Get-Last-Version-From-Tag-Not-On-Support
-
-      if ([string]::IsNullOrEmpty($VersionFromTag))
-      {
-        $CurrentVersion = Read-Host "No version found. Please enter a release version: "
-      } 
-      else
-      {
-        $LastVersion = $VersionFromTag.substring(1)
-        $CurrentVersion = Get-Next-AlphaBeta $LastVersion
-      }
-    }
 
     $CurrentBranchname = Get-Current-Branchname
 
@@ -261,7 +243,6 @@ function Release-Alpha-Beta ()
     $NextVersion = Read-Version-Choice $NextPossibleVersions
    
     Create-And-Release-Jira-Versions $CurrentVersion $NextVersion $TRUE
- 
 
     Invoke-MsBuild-And-Commit $CurrentVersion -MsBuildMode "prepareNextVersion" 
         
@@ -383,6 +364,7 @@ function Continue-Support-Release ()
     [CmdletBinding()]
     param
     (
+       [Parameter(Mandatory=$true)]
        [string] $CurrentVersion,
        [switch] $DoNotPush   
     )
@@ -422,6 +404,7 @@ function Continue-Master-Release ()
     [CmdletBinding()]
     param
     (
+       [Parameter(Mandatory=$true)]
        [string] $CurrentVersion,
        [switch] $DoNotPush   
     )
@@ -450,6 +433,7 @@ function Continue-Pre-Release ()
     [CmdletBinding()]
     param
     (
+       [Parameter(Mandatory=$true)]
        [string] $CurrentVersion,
        [switch] $DoNotPush   
     )
