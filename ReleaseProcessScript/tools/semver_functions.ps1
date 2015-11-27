@@ -50,7 +50,7 @@ function Get-Possible-Next-Versions-Develop ($Version)
     }
     else
     {
-      return "$($NextPossibleMinor)-alpha.1", $NextPossibleMinor, $NextPossibleMajor
+      return "$($NextPossibleMinor)-alpha.1", "$($NextPossibleMinor)-beta.1", $NextPossibleMinor, $NextPossibleMajor
     } 
 }
 
@@ -91,11 +91,10 @@ function Get-Possible-Next-Versions-Support ($Version)
     }
     else
     {
-      return "$($NextPossiblePatch)-alpha.1", $NextPossiblePatch
+      return $NextPossiblePatch, "$($NextPossiblePatch)-alpha.1", "$($NextPossiblePatch)-alpha.1"
     } 
 }
 
-    
 function Get-Next-Rc ($CurrentVersion)
 {
     $Match = Parse-Semver $CurrentVersion

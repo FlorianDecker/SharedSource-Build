@@ -26,14 +26,14 @@ Describe "semver_functions" {
 
         It "Get-Possible-Next-Versions-Develop_WithoutPre_ShouldReturnArray" {
             $Version = "1.2.0"
-            $NextVersions = "1.3.0-alpha.1", "1.3.0", "2.0.0"
+            $NextVersions = "1.3.0-alpha.1", "1.3.0-beta.1", "1.3.0", "2.0.0"
 
             Get-Possible-Next-Versions-Develop $Version | Should Be $NextVersions
         }
 
         It "Get-Possible-Next-Versions-Develop_OnlyMajor_ShouldReturnArray" {
             $Version = "2.0.0"
-            $NextVersions = "2.1.0-alpha.1", "2.1.0", "3.0.0"
+            $NextVersions = "2.1.0-alpha.1", "2.1.0-beta.1", "2.1.0", "3.0.0"
 
             Get-Possible-Next-Versions-Develop $Version | Should Be $NextVersions
         }
@@ -78,7 +78,7 @@ Describe "semver_functions" {
 
         It "Get-Possible-Next-Versions-Support_WithoutPre_ShouldReturnArray" {
             $Version = "1.2.0"
-            $NextVersions = "1.2.1-alpha.1", "1.2.1"
+            $NextVersions = "1.2.1-alpha.1", "1.2.1-beta.1", "1.2.1"
 
             Get-Possible-Next-Versions-Support $Version | Should Be $NextVersions
         }
