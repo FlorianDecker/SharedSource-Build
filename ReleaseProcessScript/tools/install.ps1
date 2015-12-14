@@ -5,7 +5,7 @@ $MarkerTemplate =
 "<?xml version=`"1.0`" encoding=`"utf-8`"?>
 <!--Marks the path fo the releaseProcessScript config file-->
 <configFile>
-    <path>Build/releaseProcessScript.config</path>
+    <path>Build/Customizations/releaseProcessScript.config</path>
 </configFile>"
 
 if (-not (Test-Path $MarkerName))
