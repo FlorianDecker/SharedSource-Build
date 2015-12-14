@@ -186,3 +186,15 @@ function Get-Major-Minor-From-Version ($Version)
       
     return "$($Major).$($Minor)"
 }
+
+function Get-Version-Without-Pre ($Version)
+{
+    $Match = Parse-Semver $Version
+    $Major = $Match.Groups["major"].ToString()
+    $Minor = $Match.Groups["minor"].ToString()     
+    $Patch = $Match.Groups["patch"].ToString()
+
+    return "$($Major).$($Minor).$($Patch)"
+}
+
+}

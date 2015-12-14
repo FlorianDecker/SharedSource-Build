@@ -442,7 +442,8 @@ function Continue-Pre-Release ()
     Check-Working-Directory
     Check-Is-On-Branch "prerelease/"
     $PrereleaseBranchname = Get-Current-Branchname
-    $BaseBranchname = Get-Ancestor
+    $BaseVersion = Get-Version-Without-Pre $CurrentVersion
+    $BaseBranchname = "release/v$($BaseVersion)"
     
     Check-Branch-Up-To-Date $PrereleaseBranchname
     Check-Branch-Up-To-Date $BaseBranchname
