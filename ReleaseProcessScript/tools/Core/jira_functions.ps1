@@ -45,6 +45,7 @@ function Check-For-Empty-Config ($ConfigFile)
 
 function Jira-Create-Version ($Version)
 {
+    Confirm-Class-Loaded
     $JiraCreateVersion = New-Object Remotion.BuildTools.MSBuildTasks.Jira.JiraCreateNewVersionWithVersionNumber
     $ConfigFile = Get-Config-File
 
@@ -71,6 +72,7 @@ function Jira-Create-Version ($Version)
 
 function Jira-Get-Current-Version ()
 {
+    Confirm-Class-Loaded
     $JiraGetVersion = New-Object Remotion.BuildTools.MSBuildTasks.Jira.JiraGetEarliestUnreleasedVersion 
 
     $ConfigFile = Get-Config-File
@@ -93,6 +95,7 @@ function Jira-Get-Current-Version ()
 
 function Jira-Release-Version ($CurrentVersionID, $NextVersionID, $SquashUnreleased)
 {
+    Confirm-Class-Loaded
     if ($SquashUnreleased)
     {
       $JiraReleaseVersion = New-Object Remotion.BuildTools.MSBuildTasks.Jira.JiraReleaseVersionAndSquashUnreleased
@@ -117,6 +120,7 @@ function Jira-Release-Version ($CurrentVersionID, $NextVersionID, $SquashUnrelea
 
 function Jira-Release-Version-And-Squash-Unreleased ($CurrentVersionID, $NextVersionID)
 {
+    Confirm-Class-Loaded
     $JiraReleaseVersionAndSquashUnreleased = New-Object Remotion.BuildTools.MSBuildTasks.Jira.JiraReleaseVersion
     $ConfigFile = Get-Config-File
     Check-For-Empty-Config $ConfigFile
@@ -132,6 +136,7 @@ function Jira-Release-Version-And-Squash-Unreleased ($CurrentVersionID, $NextVer
 
 function Jira-Check-Credentials ($Username, $Password)
 {
+    Confirm-Class-Loaded
     $JiraCheckAuthentication = New-Object Remotion.BuildTools.MSBuildTasks.Jira.JiraCheckAuthentication
 
     $ConfigFile = Get-Config-File
@@ -143,4 +148,20 @@ function Jira-Check-Credentials ($Username, $Password)
     $JiraCheckAuthentication.JiraProject = $ConfigFile.settings.jira.jiraProjectKey
     
     $JiraCheckAuthentication.Execute()
+}
+
+function Confirm-Class-Loaded ()
+{
+    try
+    {
+      #We just use a random Classname to check if it is loaded
+      if (-not ([Remotion.BuildTools.MSBuildTasks.Jira]'JiraCheckAuthentication').Type)
+      {
+        Load-Dependency-Dll
+      }
+    }
+    catch
+    {
+      Load-Dependency-Dll
+    }
 }
