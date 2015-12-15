@@ -258,6 +258,6 @@ function Get-Ancestor ($Branchname)
     $Branchname = Get-Current-Branchname
   }
   
-  return git show-branch | where-object { $_.Contains('*') -eq $TRUE } | Where-object { $_.Contains($Branchname) -ne $TRUE } | select -first 1 | % {$_ -replace('.*\[(.*)\].*','$1')} | % { $_ -replace('[\^~].*','') }
+  return git show-branch | where-object { $_.Contains('!') -eq $TRUE } | Where-object { $_.Contains($Branchname) -ne $TRUE } | select -first 1 | % {$_ -replace('.*\[(.*)\].*','$1')} | % { $_ -replace('[\^~].*','') }
 
 }
