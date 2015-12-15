@@ -5,7 +5,7 @@ SHORT DESCRIPTION
 Provides information about ReleaseProcessScript commands.
 
 Long-Description
-This topic describes the ReleaseProcessScript Commands. ReleaseProcessScript is a collection of Powershell functions, which automate the git release Process according to the git flow model [TODO FancyName]
+This topic describes the ReleaseProcessScript Commands. ReleaseProcessScript is a collection of Powershell functions, which automate the git release Process along the git flow model 
 You can access the help page of the commands via the 'Get-Help' cmdlet (as example: 'Get-Help New-Version')
 
 The following Commands are included:
@@ -13,7 +13,7 @@ The following Commands are included:
   ------------------------     ---------------------------------------------
   New-Version                  Releases a new version 
   New-Releasebranch            Creates a new release branch
-  Complete-Version             Merge, Tag and Push a release or prelease branch
+  Close-Version                Merge, Tag and Push a release or prelease branch
   Push-Remote-Repositories     Pushes given Branch to the configured Remote Repositories
 
 SEE ALSO

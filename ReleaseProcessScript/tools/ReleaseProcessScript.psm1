@@ -60,7 +60,7 @@ function New-Releasebranch ()
     Release-Version -StartReleasePhase -CommitHash:$CommitHash
 }
 
-function Complete-Version ()
+function Close-Version ()
 {
     <#
     .SYNOPSIS
