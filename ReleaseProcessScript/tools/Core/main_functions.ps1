@@ -56,7 +56,7 @@ function Release-Version ()
     elseif (Is-On-Branch "release/")
     {
       $CurrentVersion = Parse-Version-From-ReleaseBranch $CurrentBranchname
-      $RcVersion = Get-Next-Rc $CurrentVersion
+      $RcVersion = Find-Next-Rc $CurrentVersion
 
       Write-Host "Do you want to release '$($RcVersion)' [1] or current version '$($CurrentVersion)' [2] ?"
 
@@ -179,10 +179,12 @@ function Release-On-Master ()
 
     $ReleaseBranchname = "release/v$($CurrentVersion)"
     Check-Branch-Does-Not-Exists $ReleaseBranchname
-    
+    git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
+    git checkout "develop" 2>&1 | Write-Host
+
     Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -MsBuildMode "developmentForNextRelease"
      
-    git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
+     git checkout $ReleaseBranchname --quiet
     
     if ($StartReleasePhase)
     {
@@ -273,7 +275,7 @@ function Release-RC ()
     $CurrentBranchname = Get-Current-Branchname
     $LastVersion = Parse-Version-From-ReleaseBranch $CurrentBranchname
 
-    $CurrentVersion = Get-Next-Rc $LastVersion
+    $CurrentVersion = Find-Next-Rc $LastVersion
 
     if ($Ancestor -eq "develop")
     {
@@ -443,11 +445,13 @@ function Continue-Pre-Release ()
     Check-Is-On-Branch "prerelease/"
     $PrereleaseBranchname = Get-Current-Branchname
     $BaseVersion = Get-Version-Without-Pre $CurrentVersion
-    $BaseBranchname = "release/v$($BaseVersion)"
+    $BaseBranchname = Get-Ancestor
     
-    Check-Branch-Up-To-Date $PrereleaseBranchname
     Check-Branch-Up-To-Date $BaseBranchname
-    
+    Check-Branch-Up-To-Date $PrereleaseBranchname
+
+    git checkout $PrereleaseBranchname --quiet
+
     $Tagname = "v$($CurrentVersion)"
 
     if (Get-Tag-Exists $Tagname)
