@@ -8,6 +8,7 @@ $Location = $PSScriptRoot
 . $Location"\main_complex_functions.ps1"
 . $Location"\read_functions.ps1"
 . $Location"\check_functions.ps1"
+. $Location"\msbuild_functions.ps1"
 
 function Release-Version ()
 {
@@ -27,7 +28,7 @@ function Release-Version ()
     if (Is-On-Branch "support/")
     {
       $SupportVersion = $CurrentBranchname.Split("/")[1].Substring(1)
-      $CurrentVersion = Get-Support-Current-Version $SupportVersion
+      $CurrentVersion = Get-Support-Current-Version $SupportVersion $StartReleasePhase
       $PreVersion = Get-PreReleaseStage $CurrentVersion
 
       if ([string]::IsNullOrEmpty($PreVersion))
@@ -41,7 +42,7 @@ function Release-Version ()
     } 
     elseif (Is-On-Branch "develop")
     {
-      $CurrentVersion = Get-Develop-Current-Version
+      $CurrentVersion = Get-Develop-Current-Version $StartReleasePhase
       $PreVersion = Get-PreReleaseStage $CurrentVersion
 
       if ([string]::IsNullOrEmpty($PreVersion))
@@ -136,8 +137,6 @@ function Release-Support ()
 
     $ReleaseBranchname = "release/v$($CurrentVersion)"
     Check-Branch-Does-Not-Exists $ReleaseBranchname
-    
-    Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -MsBuildMode "developmentForNextRelease"
 
     git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
 

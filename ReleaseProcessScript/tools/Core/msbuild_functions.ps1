@@ -76,9 +76,10 @@
       else
       {
         $CommitMessage = $CommitMessage -replace "{version}", $CurrentVersion
+        $CommitMessage = $CommitMessage -replace "{Version}", $CurrentVersion
         
-        git add -A 2>&1
-        git commit -m $CommitMessage 2>&1
+        git add -A 2>&1 | Write-Host
+        git commit -m $CommitMessage 2>&1 | Write-Host
         Resolve-Merge-Conflicts       
       }      
     }

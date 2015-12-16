@@ -83,4 +83,30 @@ Describe "semver_functions" {
             Get-Possible-Next-Versions-Support $Version | Should Be $NextVersions
         }
     }
+
+    Context "Get-Most-Recent-Version" {
+      It "Get-Most-Recent-Version_MajorAndMinor" {
+          $RecentVersion = "2.1.0-alpha.1"
+          $BeforeVersion = "2.0.0"
+
+          Get-Most-Recent-Version $RecentVersion $BeforeVersion | Should Be $RecentVersion
+          Get-Most-Recent-Version $BeforeVersion $RecentVersion | Should Be $RecentVersion
+      }
+
+      It "Get-Most-Recent-Version_MajorAndMajor" {
+          $RecentVersion = "3.0.0"
+          $BeforeVersion = "2.0.0"
+
+          Get-Most-Recent-Version $RecentVersion $BeforeVersion | Should Be $RecentVersion
+          Get-Most-Recent-Version $BeforeVersion $RecentVersion | Should Be $RecentVersion
+      }
+
+      It "Get-Most-Recent-Version_MinorAndMinor" {
+          $RecentVersion = "2.1.0"
+          $BeforeVersion = "2.0.0"
+
+          Get-Most-Recent-Version $RecentVersion $BeforeVersion | Should Be $RecentVersion
+          Get-Most-Recent-Version $BeforeVersion $RecentVersion | Should Be $RecentVersion
+      }
+    }
 }

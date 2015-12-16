@@ -20,32 +20,35 @@ function Create-And-Release-Jira-Versions ($CurrentVersion, $NextVersion, $Squas
     Jira-Release-Version $CurrentVersionId $NextVersionId $SquashUnreleased
 }
 
-function Get-Develop-Current-Version ()
+function Get-Develop-Current-Version ($StartReleasebranch)
 {
-    #Get last Tag from develop
-    $DevelopVersion = Get-Last-Version-Of-Branch-From-Tag
-
-    #Get last Tag from master (because Get-Last-Version-Of-Branch-From-Tag does not reach master, so the master commit could be the recent)
-    $MasterVersion = Get-Last-Version-Of-Branch-From-Tag "master"
-
-    #Take most recent
-    if ($DevelopVersion.CompareTo($MasterVersion) -eq 1)
+    if ($StartReleasebranch)
     {
-      $LastVersion = $DevelopVersion
+      $WithoutPrerelease = $TRUE
     }
     else
     {
-      $LastVersion = $MasterVersion
+      $WithoutPrerelease = $FALSE
     }
+
+    #Get last Tag from develop
+    $DevelopVersion = Get-Last-Version-Of-Branch-From-Tag
+
+    #Get last Tag from master (because Get-Last-Version-Of-Branch-From-Tag does not reach master, so the master commit could be the most recent)
+    $MasterVersion = Get-Last-Version-Of-Branch-From-Tag "master"
+
+
+    #Take most recent
+    $MostRecentVersion = Get-Most-Recent-Version $DevelopVersion.Substring(1) $MasterVersion.Substring(1)
     
-    $PossibleVersions = Get-Possible-Next-Versions-Develop $LastVersion.Substring(1)
+    $PossibleVersions = Get-Possible-Next-Versions-Develop $MostRecentVersion $WithoutPrerelease
 
     $CurrentVersion = Read-Version-Choice $PossibleVersions
 
     return $CurrentVersion
 }
 
-function Get-Support-Current-Version ($SupportVersion)
+function Get-Support-Current-Version ($SupportVersion, $StartReleasePhase)
 {
     if (-not (Get-Tag-Exists "v$($SupportVersion).0") )
     {
@@ -53,9 +56,17 @@ function Get-Support-Current-Version ($SupportVersion)
     }
     else
     {
-     $LastVersion = Get-Last-Version-Of-Branch-From-Tag
-     $PossibleVersions = Get-Possible-Next-Versions-Support $LastVersion.Substring(1)
-     $CurrentVersion = Read-Version-Choice $PossibleVersions
+      $LastVersion = Get-Last-Version-Of-Branch-From-Tag
+     
+      if ($StartReleasePhase)
+      {
+        $CurrentVersion = Get-Next-Patch $LastVersion.Substring(1)
+      }
+      else
+      {
+        $PossibleVersions = Get-Possible-Next-Versions-Support $LastVersion.Substring(1)
+        $CurrentVersion = Read-Version-Choice $PossibleVersions
+      }
     }
 
     return $CurrentVersion

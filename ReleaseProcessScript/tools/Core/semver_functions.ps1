@@ -10,7 +10,7 @@ function Parse-Semver ($Semver)
     return [regex]::Match($Semver, $Regex)
 }
 
-function Get-Possible-Next-Versions-Develop ($Version)
+function Get-Possible-Next-Versions-Develop ($Version, $WithoutPrerelease)
 {
     $Match = Parse-Semver $Version
 
@@ -50,7 +50,14 @@ function Get-Possible-Next-Versions-Develop ($Version)
     }
     else
     {
-      return "$($NextPossibleMinor)-alpha.1", "$($NextPossibleMinor)-beta.1", $NextPossibleMinor, $NextPossibleMajor
+      if ($WithoutPrerelease)
+      {
+        return $NextPossibleMinor, $NextPossibleMajor
+      }
+      else
+      {
+        return "$($NextPossibleMinor)-alpha.1", "$($NextPossibleMinor)-beta.1", $NextPossibleMinor, $NextPossibleMajor
+      }
     } 
 }
 
@@ -197,4 +204,102 @@ function Get-Version-Without-Pre ($Version)
     return "$($Major).$($Minor).$($Patch)"
 }
 
+function Get-Most-Recent-Version ($Version1, $Version2)
+{
+    if ([string]::IsNullOrEmpty($Version1))
+    {
+        return $Version2
+    }
+
+    if ([string]::IsNullOrEmpty($Version2))
+    {
+        return $Version1
+    }
+    
+    if ( $Version1 -eq $Version2)
+    {
+      return $Version1
+    }
+
+    $ParsedVersion1 = Parse-Semver $Version1
+    $ParsedVersion2 = Parse-Semver $Version2
+
+    $Major1 = $ParsedVersion1.Groups["major"].ToString()
+    $Major2 = $ParsedVersion2.Groups["major"].ToString()
+
+    $Minor1 = $ParsedVersion1.Groups["minor"].ToString()
+    $Minor2 = $ParsedVersion2.Groups["minor"].ToString()
+    
+    $Patch1 = $ParsedVersion1.Groups["patch"].ToString()
+    $Patch2 = $ParsedVersion2.Groups["patch"].ToString()
+
+    if ($Major1 -gt $Major2) 
+    {
+        return $Version1
+    }
+    if ($Major1 -lt $Major2)
+    {
+        return $Version2
+    }
+
+
+    if ($Minor1 -gt $Minor2)
+    {
+        return $Version1
+    }
+    if ($Minor1 -lt $Minor2)
+    {
+        return $Version2
+    }
+
+
+    if ($Patch1 -lt $Patch2)
+    {
+        return $Version1
+    }
+    if ($Patch1 -lt $Patch2)
+    {
+        return $Version2
+    }
+
+    
+    if ($ParsedVersion1.Groups["pre"].Success -and (-not $ParsedVersion2.Groups["pre"].Success) )
+    {
+        return $Version2
+    }
+    if ((-not $ParsedVersion1.Groups["pre"].Success) -and $ParsedVersion2.Groups["pre"].Success)
+    {
+        return $Version1
+    }
+
+
+
+    $Pre1 = $Version1.Groups["pre"].ToString()
+    $Pre2 = $Version2.Groups["pre"].ToString()
+
+    $PreVersion1 = $Version1.Groups["preversion"].ToString()
+    $PreVersion2 = $Version2.Groups["preversion"].ToString()
+
+    if ($Pre1 -gt $Pre2)
+    {
+        return $Version1
+    }
+    if ($Pre1 -lt $Pre2)
+    {
+        return $Version2
+    }
+
+
+    if ($PreVersion1 -lt $PreVersion2)
+    {
+        return $Version1
+    }
+
+    if ($PreVersion1 -lt $PreVersion2)
+    {
+        return $Version2
+    }
+
+
+    return $NULL
 }
