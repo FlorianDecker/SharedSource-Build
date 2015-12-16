@@ -96,23 +96,27 @@ function Jira-Get-Current-Version ()
 function Jira-Release-Version ($CurrentVersionID, $NextVersionID, $SquashUnreleased)
 {
     Confirm-Class-Loaded
+    $ConfigFile = Get-Config-File
+    Check-For-Empty-Config $ConfigFile
+
+    Confirm-Class-Loaded
+
     if ($SquashUnreleased)
     {
       $JiraReleaseVersion = New-Object Remotion.BuildTools.MSBuildTasks.Jira.JiraReleaseVersionAndSquashUnreleased
+      $JiraReleaseVersion.ProjectKey = $ConfigFile.settings.jira.jiraProjectKey
+
     }
     else
     {
       $JiraReleaseVersion = New-Object Remotion.BuildTools.MSBuildTasks.Jira.JiraReleaseVersion
     }
     
-    $ConfigFile = Get-Config-File
-    Check-For-Empty-Config $ConfigFile
-
+    
     $JiraReleaseVersion.JiraUrl = Add-JiraUrlPostfix-To-Config-Url $ConfigFile.settings.jira.jiraUrl
     $JiraReleaseVersion.VersionID = $CurrentVersionID
     $JiraReleaseVersion.NextVersionID = $NextVersionID
-    $JiraReleaseVersion.ProjectKey = $ConfigFile.settings.jira.jiraProjectKey
-
+    
     Add-Authentication $JiraReleaseVersion
 
     $JiraReleaseVersion.Execute()
