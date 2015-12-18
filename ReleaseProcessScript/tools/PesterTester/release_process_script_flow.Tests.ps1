@@ -54,7 +54,7 @@ Describe "release_process_script_flow" {
        }
 
        It "Release-Version_OnReleaseBranch_MockChoiceReleaseRC" {
-           Mock Read-Release-Branch-Mode-Choice { return 1 }
+           Mock Read-Choice-Of-Two { return 1 }
            Mock Release-RC { return }
 
            git checkout -b "release/v1.0.0" --quiet
@@ -65,7 +65,7 @@ Describe "release_process_script_flow" {
        }
        
        It "Release-Version_OnReleaseBranch_MockChoiceReleaseOnMaster" {
-           Mock Read-Release-Branch-Mode-Choice { return 2 }
+           Mock Read-Choice-Of-Two { return 2 }
            Mock Release-With-RC { return }
 
            git checkout -b "release/v1.0.0" --quiet
@@ -116,7 +116,7 @@ Describe "release_process_script_flow" {
         }
         
         It "Release-Version_OnReleaseBranch_ReleaseRC" {
-           Mock Read-Release-Branch-Mode-Choice { return 1 }
+           Mock Read-Choice-Of-Two { return 1 }
            Mock Read-Version-Choice { return "1.0.0-rc.2" }
            
            git checkout -b "develop" --quiet
@@ -129,7 +129,7 @@ Describe "release_process_script_flow" {
         }    
 
         It "Release-Version_OnReleaseBranch_ReleaseOnMaster" {
-           Mock Read-Release-Branch-Mode-Choice { return 2 }
+           Mock Read-Choice-Of-Two { return 2 }
            Mock Read-Version-Choice { return "1.1.0" }
 
            git checkout -b "develop" --quiet

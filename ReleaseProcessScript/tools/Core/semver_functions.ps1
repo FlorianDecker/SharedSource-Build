@@ -29,6 +29,7 @@ function Get-Possible-Next-Versions-Develop ($Version, $WithoutPrerelease)
     {
       $Pre = $Match.Groups["pre"].ToString()
       $PreVersion = $Match.Groups["preversion"].ToString()  
+      $NextPossibleFullVersion = "$($Major).$($Minor).$($Patch)"
 
       $NextPreVersion = [string](1 + $PreVersion)
       $NextPossiblePreVersion = "$($Major).$($Minor).$($Patch)-$($Pre).$($NextPreVersion)" 
@@ -37,15 +38,15 @@ function Get-Possible-Next-Versions-Develop ($Version, $WithoutPrerelease)
       {
         $NextPossiblePre = "$($Major).$($Minor).$($Patch)-beta.1"
 
-        return $NextPossiblePreVersion, $NextPossiblePre, $NextPossibleMinor, $NextPossibleMajor       
+        return $NextPossiblePreVersion, $NextPossiblePre, $NextPossibleFullVersion
       }
       elseif ($Pre -eq "beta")
       {
-        return $NextPossiblePreVersion, $NextPossibleMinor, $NextPossibleMajor 
+        return $NextPossiblePreVersion, $NextPossibleFullVersion 
       }
       elseif ($Pre -eq "rc")
       {
-        return $NextPossiblePreVersion, $NextPossibleMinor, $NextPossibleMajor
+        return $NextPossiblePreVersion, $NextPossibleFullVersion
       }
     }
     else
@@ -76,7 +77,8 @@ function Get-Possible-Next-Versions-Support ($Version)
     if ($Match.Groups["pre"].Success)
     {
       $Pre = $Match.Groups["pre"].ToString()
-      $PreVersion = $Match.Groups["preversion"].ToString()  
+      $PreVersion = $Match.Groups["preversion"].ToString()
+      $NextPossibleFullVersion = "$($Major).$($Minor).$($Patch)"  
 
       $NextPreVersion = [string](1 + $PreVersion)
       $NextPossiblePreVersion = "$($Major).$($Minor).$($Patch)-$($Pre).$($NextPreVersion)" 
@@ -85,20 +87,20 @@ function Get-Possible-Next-Versions-Support ($Version)
       {
         $NextPossiblePre = "$($Major).$($Minor).$($Patch)-beta.1"
 
-        return $NextPossiblePreVersion, $NextPossiblePre, $NextPossiblePatch
+        return $NextPossiblePreVersion, $NextPossiblePre, $NextPossibleFullVersion
       }
       elseif ($Pre -eq "beta")
       {
-        return $NextPossiblePreVersion, $NextPossiblePatch
+        return $NextPossiblePreVersion, $NextPossibleFullVersion
       }
       elseif ($Pre -eq "rc")
       {
-        return $NextPossiblePreVersion, $NextPossiblePatch
+        return $NextPossiblePreVersion, $NextPossibleFullVersion
       }
     }
     else
     {
-      return $NextPossiblePatch, "$($NextPossiblePatch)-alpha.1", "$($NextPossiblePatch)-alpha.1"
+      return $NextPossiblePatch, "$($NextPossiblePatch)-alpha.1", "$($NextPossiblePatch)-beta.1"
     } 
 }
 
