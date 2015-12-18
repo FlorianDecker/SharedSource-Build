@@ -38,15 +38,16 @@ function Get-Possible-Next-Versions-Develop ($Version, $WithoutPrerelease)
       {
         $NextPossiblePre = "$($Major).$($Minor).$($Patch)-beta.1"
 
-        return $NextPossiblePreVersion, $NextPossiblePre, $NextPossibleFullVersion
+        return $NextPossiblePreVersion, $NextPossiblePre, $NextPossibleFullVersion, "$($NextPossibleMajor)-alpha.1", "$($NextPossibleMajor)-beta.1", $NextPossibleMajor
       }
       elseif ($Pre -eq "beta")
       {
-        return $NextPossiblePreVersion, $NextPossibleFullVersion 
+        return $NextPossiblePreVersion, $NextPossibleFullVersion, "$($NextPossibleMajor)-alpha.1", "$($NextPossibleMajor)-beta.1", $NextPossibleMajor
       }
       elseif ($Pre -eq "rc")
       {
-        return $NextPossiblePreVersion, $NextPossibleFullVersion
+        #We dont return a NextPossiblePreVersion because you cant have a releasecandidate directly on develop. So the last version should not be a rc anyway.
+        return $NextPossibleFullVersion, "$($NextPossibleMajor)-alpha.1", "$($NextPossibleMajor)-beta.1", $NextPossibleMajor
       }
     }
     else
@@ -57,7 +58,7 @@ function Get-Possible-Next-Versions-Develop ($Version, $WithoutPrerelease)
       }
       else
       {
-        return "$($NextPossibleMinor)-alpha.1", "$($NextPossibleMinor)-beta.1", $NextPossibleMinor, $NextPossibleMajor
+        return "$($NextPossibleMinor)-alpha.1", "$($NextPossibleMinor)-beta.1", $NextPossibleMinor, $NextPossibleMajor, "$($NextPossibleMajor)-alpha.1", "$($NextPossibleMajor)-beta.1"
       }
     } 
 }
