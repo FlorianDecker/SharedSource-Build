@@ -1,4 +1,4 @@
-function Read-Release-Branch-Mode-Choice ()
+function Read-Choice-Of-Two ()
 {
     try
     {

@@ -118,5 +118,5 @@ function Push-Remote-Repositories ()
 
 Export-ModuleMember -Function New-Version
 Export-ModuleMember -Function New-Releasebranch
-Export-ModuleMember -Function Complete-Version
+Export-ModuleMember -Function Close-Version
 Export-ModuleMember -Function Push-Remote-Repositories

@@ -60,7 +60,14 @@ function Get-Support-Current-Version ($SupportVersion, $StartReleasePhase)
      
       if ($StartReleasePhase)
       {
-        $CurrentVersion = Get-Next-Patch $LastVersion.Substring(1)
+        if ( (Get-PreReleaseStage $LastVersion.Substring(1)) -eq $NULL)
+        {
+          $CurrentVersion = Get-Next-Patch $LastVersion.Substring(1)
+        }
+        else
+        {
+          $CurrentVersion = Get-Version-Without-Pre $LastVersion.Substring(1)
+        }
       }
       else
       {

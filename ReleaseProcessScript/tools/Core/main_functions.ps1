@@ -61,7 +61,7 @@ function Release-Version ()
 
       Write-Host "Do you want to release '$($RcVersion)' [1] or current version '$($CurrentVersion)' [2] ?"
 
-      $ReleaseChoice = Read-Release-Branch-Mode-Choice
+      $ReleaseChoice = Read-Choice-Of-Two
 
       if ($ReleaseChoice -eq 1)
       {
@@ -140,11 +140,14 @@ function Release-Support ()
     $CurrentBranchname = Get-Current-Branchname
 
     Write-Host "Current version: '$($CurrentVersion)'."
-    $NextVersion = Get-Next-Patch $CurrentVersion  
-    Write-Host "Next version: '$($NextVersion)'."
+    
+    $NextPossibleVersions = Get-Possible-Next-Versions-Support $CurrentVersion
+    Write-Host "Please choose next version (open JIRA issues get moved there): "
+    $NextVersion = Read-Version-Choice $NextPossibleVersions
 
     $ReleaseBranchname = "release/v$($CurrentVersion)"
     Check-Branch-Does-Not-Exists $ReleaseBranchname
+ 
 
     git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
 
@@ -191,7 +194,7 @@ function Release-On-Master ()
 
     Invoke-MsBuild-And-Commit -CurrentVersion $CurrentVersion -MsBuildMode "developmentForNextRelease"
      
-     git checkout $ReleaseBranchname --quiet
+    git checkout $ReleaseBranchname --quiet
     
     if ($StartReleasePhase)
     {
