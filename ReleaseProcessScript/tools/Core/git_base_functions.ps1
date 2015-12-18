@@ -260,13 +260,13 @@ function Get-Ancestor ($Branchname)
   
   $Ancestor = git show-branch | where-object { $_.Contains('*') -eq $TRUE } | Where-object { $_.Contains($Branchname) -ne $TRUE } | select -first 1 | % {$_ -replace('.*\[(.*)\].*','$1')} | % { $_ -replace('[\^~].*','') }
 
-  if ( ($Ancestor -eq "develop") -or ($Ancestor.StartsWith("support/")) )
+  if ( ($Ancestor -eq "develop") -or ($Ancestor.StartsWith("support/")) -or ($Ancestor -eq "master") )
   {
     return $Ancestor
   }
   else
   {
-    Write-Host "Cant determine ancestor of current release branch. Please enter the ancestor (develop, support/v*.*)?" 
+    Write-Host "Cannot determine ancestor of current release branch. Please enter the ancestor (develop, support/v*.*)." 
     [string]$Ancestor = Read-Host "Pleace enter ancestor branchname"
     return $Ancestor
   }

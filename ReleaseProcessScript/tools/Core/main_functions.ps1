@@ -33,7 +33,7 @@ function Release-Version ()
 
       if ([string]::IsNullOrEmpty($PreVersion))
       {
-        Release-Support -StartReleasePhase:$StartReleasePhase -CurrentVersion $CurrentVersion -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash
+        Release-Patch -StartReleasePhase:$StartReleasePhase -CurrentVersion $CurrentVersion -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash
       }
       elseif ( ($PreVersion -eq "alpha") -or ($PreVersion -eq "beta") )
       {
@@ -71,6 +71,13 @@ function Release-Version ()
       {
         Release-With-RC -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush
       } 
+    }
+    elseif (Is-On-Branch "master")
+    {
+      $LastVersion = Get-Last-Version-Of-Branch-From-Tag "master"
+      $CurrentVersion = Get-Next-Patch $LastVersion.Substring(1)
+      Release-Patch -StartReleasePhase:$StartReleasePhase -CurrentVersion $CurrentVersion -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash -OnMaster:$TRUE
+      
     }
     else
     {
@@ -120,7 +127,7 @@ function Continue-Release()
     }
 }
 
-function Release-Support ()
+function Release-Patch ()
 {
     [CmdletBinding()]
     param
@@ -130,12 +137,21 @@ function Release-Support ()
       [string] $CurrentVersion,
       [switch] $StartReleasePhase,
       [switch] $PauseForCommit,
-      [switch] $DoNotPush
+      [switch] $DoNotPush,
+      [switch] $OnMaster
     )
     
     Check-Working-Directory
     Check-Commit-Hash $CommitHash
-    Check-Is-On-Branch "support/"
+    
+    if ($OnMaster)
+    {
+      Check-Is-On-Branch "master"
+    }
+    else
+    {
+      Check-Is-On-Branch "master"
+    }
 
     $CurrentBranchname = Get-Current-Branchname
 
@@ -147,7 +163,11 @@ function Release-Support ()
 
     $ReleaseBranchname = "release/v$($CurrentVersion)"
     Check-Branch-Does-Not-Exists $ReleaseBranchname
- 
+
+    if (Get-Tag-Exists "v$($CurrentVersion)")
+    {
+      throw "There is already a commit tagged with 'v$($CurrentVersion)'."
+    }
 
     git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
 
@@ -165,7 +185,7 @@ function Release-Support ()
       return
     }
 
-    Continue-Support-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
+    Continue-Patch-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush -OnMaster:$OnMaster
 }
 
 function Release-On-Master ()
@@ -334,13 +354,13 @@ function Release-With-RC ()
     Check-Working-Directory
     Check-Is-On-Branch "release/"
     
-    $CurrentBranchname = Get-Current-Branchname
-    $CurrentVersion = Parse-Version-From-ReleaseBranch $CurrentBranchname
-    
     if ([string]::IsNullOrEmpty($Ancestor))
     {
       $Ancestor = Get-Ancestor
     }
+
+    $CurrentBranchname = Get-Current-Branchname
+    $CurrentVersion = Parse-Version-From-ReleaseBranch $CurrentBranchname
     
     if (Get-Tag-Exists "v$($CurrentVersion)")
     {
@@ -353,7 +373,7 @@ function Release-With-RC ()
     {
       $PossibleNextVersions = Get-Possible-Next-Versions-Develop $CurrentVersion
     }
-    elseif ($Ancestor.StartsWith("support/"))
+    elseif ($Ancestor.StartsWith("support/") -or ($Ancestor -eq "master") )
     {
       $PossibleNextVersions = Get-Possible-Next-Versions-Support $CurrentVersion
     }
@@ -376,26 +396,38 @@ function Release-With-RC ()
     }
     elseif ($Ancestor.StartsWith("support/"))
     {
-      Continue-Support-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
+      Continue-Patch-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
+    }
+    elseif ($Ancestor -eq "master")
+    {
+      Continue-Patch-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush -OnMaster:$TRUE  
     }
 }
 
-function Continue-Support-Release ()
+function Continue-Patch-Release ()
 {
     [CmdletBinding()]
     param
     (
        [Parameter(Mandatory=$true)]
        [string] $CurrentVersion,
-       [switch] $DoNotPush   
+       [switch] $DoNotPush,
+       [switch] $OnMaster  
     )
 
     Check-Working-Directory
 
     $MajorMinor = Get-Major-Minor-From-Version $CurrentVersion
-    $SupportBranchname = "support/v$($MajorMinor)"
+    if ($OnMaster)
+    {
+      $Branchname = "master"
+    }
+    else
+    {
+      $Branchname = "support/v$($MajorMinor)"
+    }
     
-    Check-Branch-Up-To-Date $SupportBranchname
+    Check-Branch-Up-To-Date $Branchname
     Check-Branch-Up-To-Date "release/v$($CurrentVersion)"
 
     $Tagname = "v$($CurrentVersion)"
@@ -405,10 +437,11 @@ function Continue-Support-Release ()
       throw "Tag '$($Tagname)' already exists." 
     }
 
-    git checkout $SupportBranchname --quiet
+    git checkout $Branchname --quiet
 
-    Merge-Branch-With-Reset $SupportBranchname "release/v$($CurrentVersion)" "tagStableMergeIgnoreList"
-
+    Merge-Branch-With-Reset $Branchname "release/v$($CurrentVersion)" "tagStableMergeIgnoreList"
+    
+    git checkout $Branchname --quiet
     git tag -a $Tagname -m $Tagname 2>&1
 
     if ($DoNotPush)
@@ -416,7 +449,7 @@ function Continue-Support-Release ()
       return
     }
 
-    Push-To-Repos $SupportBranchname $TRUE
+    Push-To-Repos $Branchname $TRUE
     Push-To-Repos "release/v$($CurrentVersion)"
 }
 

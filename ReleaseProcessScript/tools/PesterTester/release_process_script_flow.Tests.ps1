@@ -44,13 +44,13 @@ Describe "release_process_script_flow" {
        
        It "Release-Version_OnSupportBranch_MockChoicePatch" {
            Mock Get-Support-Current-Version { return "1.1.1" }
-           Mock Release-Support { return }
+           Mock Release-Patch { return }
 
            git checkout -b "support/v1.1" --quiet
            
            Release-Version
 
-           Assert-MockCalled Release-Support -Times 1
+           Assert-MockCalled Release-Patch -Times 1
        }
 
        It "Release-Version_OnReleaseBranch_MockChoiceReleaseRC" {
