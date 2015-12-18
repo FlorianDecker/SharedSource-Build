@@ -258,6 +258,16 @@ function Get-Ancestor ($Branchname)
     $Branchname = Get-Current-Branchname
   }
   
-  return git show-branch | where-object { $_.Contains('!') -eq $TRUE } | Where-object { $_.Contains($Branchname) -ne $TRUE } | select -first 1 | % {$_ -replace('.*\[(.*)\].*','$1')} | % { $_ -replace('[\^~].*','') }
+  $Ancestor = git show-branch | where-object { $_.Contains('*') -eq $TRUE } | Where-object { $_.Contains($Branchname) -ne $TRUE } | select -first 1 | % {$_ -replace('.*\[(.*)\].*','$1')} | % { $_ -replace('[\^~].*','') }
 
+  if ( ($Ancestor -eq "develop") -or ($Ancestor.StartsWith("support/")) )
+  {
+    return $Ancestor
+  }
+  else
+  {
+    Write-Host "Cant determine ancestor of current release branch. Please enter the ancestor (develop, support/v*.*)?" 
+    [string]$Ancestor = Read-Host "Pleace enter ancestor branchname"
+    return $Ancestor
+  }
 }

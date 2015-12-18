@@ -83,7 +83,8 @@ function Continue-Release()
     [CmdletBinding()]
     param
     (
-       [switch] $DoNotPush   
+       [switch] $DoNotPush,
+       [string] $Ancestor   
     )
 
     $CurrentBranchname = Get-Current-Branchname
@@ -95,16 +96,23 @@ function Continue-Release()
     }
     elseif (Is-On-Branch "release/")
     {
-      $Ancestor = Get-Ancestor
+      if ([string]::IsNullOrEmpty($Ancestor))
+      {
+        $Ancestor = Get-Ancestor
+      }
 
       if ($Ancestor -eq "develop" )
       {
         Continue-Master-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
       } 
-      else
+      elseif ($Ancestor.StartsWith("support/") )
       {
         Continue-Support-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
-      }    
+      }
+      else
+      {
+        throw "Ancestor has to be either 'develop' or a 'support/v*.*' branch"
+      }
     }
     else
     {
@@ -253,7 +261,7 @@ function Release-Alpha-Beta ()
       return
     }
 
-    Continue-Pre-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
+    Continue-Pre-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush -Ancestor $CurrentBranchname
 }
 
 function Release-RC ()
@@ -263,14 +271,19 @@ function Release-RC ()
     (
       [string] $CommitHash,
       [switch] $PauseForCommit,
-      [switch] $DoNotPush
+      [switch] $DoNotPush,
+      [string] $Ancestor
     )
 
     Check-Working-Directory
     Check-Commit-Hash $CommitHash
     Check-Is-On-Branch "release/"
-    $Ancestor = Get-Ancestor
-
+    
+    if ([string]::IsNullOrEmpty($Ancestor) )
+    {
+      $Ancestor = Get-Ancestor
+    }
+    
     $CurrentBranchname = Get-Current-Branchname
     $LastVersion = Parse-Version-From-ReleaseBranch $CurrentBranchname
 
@@ -280,7 +293,7 @@ function Release-RC ()
     {
       $NextPossibleVersions = Get-Possible-Next-Versions-Develop $CurrentVersion
     }
-    else
+    elseif ($Ancestor.StartsWith("support/"))
     {
       $NextPossibleVersions = Get-Possible-Next-Versions-Support $CurrentVersion
     }
@@ -302,7 +315,7 @@ function Release-RC ()
       return
     }
 
-    Continue-Pre-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
+    Continue-Pre-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush -Ancestor $Ancestor
 }
 
 function Release-With-RC ()
@@ -311,7 +324,8 @@ function Release-With-RC ()
     param
     (
       [switch] $PauseForCommit,
-      [switch] $DoNotPush
+      [switch] $DoNotPush,
+      [string] $Ancestor
     )
 
     Check-Working-Directory
@@ -319,8 +333,12 @@ function Release-With-RC ()
     
     $CurrentBranchname = Get-Current-Branchname
     $CurrentVersion = Parse-Version-From-ReleaseBranch $CurrentBranchname
-    $Ancestor = Get-Ancestor
-
+    
+    if ([string]::IsNullOrEmpty($Ancestor))
+    {
+      $Ancestor = Get-Ancestor
+    }
+    
     if (Get-Tag-Exists "v$($CurrentVersion)")
     {
       throw "There is already a commit tagged with 'v$($CurrentVersion)'."
@@ -332,11 +350,10 @@ function Release-With-RC ()
     {
       $PossibleNextVersions = Get-Possible-Next-Versions-Develop $CurrentVersion
     }
-    else
+    elseif ($Ancestor.StartsWith("support/"))
     {
       $PossibleNextVersions = Get-Possible-Next-Versions-Support $CurrentVersion
     }
-
 
     Write-Host "Choose next version (open issues get moved there): "
     $NextVersion = Read-Version-Choice $PossibleNextVersions
@@ -349,13 +366,12 @@ function Release-With-RC ()
     {
       return
     }
-
     
     if ($Ancestor -eq "develop")
     {
       Continue-Master-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
     }
-    else
+    elseif ($Ancestor.StartsWith("support/"))
     {
       Continue-Support-Release -CurrentVersion $CurrentVersion -DoNotPush:$DoNotPush
     }
@@ -437,14 +453,23 @@ function Continue-Pre-Release ()
     (
        [Parameter(Mandatory=$true)]
        [string] $CurrentVersion,
-       [switch] $DoNotPush   
+       [switch] $DoNotPush,
+       [string] $Ancestor   
     )
 
     Check-Working-Directory
     Check-Is-On-Branch "prerelease/"
     $PrereleaseBranchname = Get-Current-Branchname
     $BaseVersion = Get-Version-Without-Pre $CurrentVersion
-    $BaseBranchname = Get-Ancestor
+    
+    if ([string]::IsNullOrEmpty($Ancestor))
+    {
+      $BaseBranchname = Get-Ancestor
+    }
+    else
+    {
+      $BaseBranchname = $Ancestor
+    }
     
     Check-Branch-Up-To-Date $BaseBranchname
     Check-Branch-Up-To-Date $PrereleaseBranchname

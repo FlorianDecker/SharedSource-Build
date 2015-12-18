@@ -71,15 +71,19 @@ function Close-Version ()
 
     .PARAMETER DoNotPush
     Optional <switch> Parameter. If given, the scripts stops before pushing the changes to the remote repositories
+
+    .PARAMETER Ancestor
+    The script cant always determine from which branch the release branch emerged from. If you give him the parameter now, the script does not have to ask later.
     #>
 
     [CmdletBinding()]
     param
     (
-       [switch] $DoNotPush   
+       [switch] $DoNotPush, 
+       [string] $Ancestor  
     )
 
-    Continue-Release -DoNotPush:$DoNotPush
+    Continue-Release -DoNotPush:$DoNotPush -Ancestor $Ancestor
 }
 
 function Push-Remote-Repositories ()
