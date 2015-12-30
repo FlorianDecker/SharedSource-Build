@@ -154,11 +154,10 @@
              Properties="ConfigurationID=Debug;$(BuildProperties);"/>
   </Target>
 
-  <Target Name="UpdateAssemblyInfosLocalBuild" DependsOnTargets="CheckVersion;PrepareBuildProperties">
+  <Target Name="UpdateAssemblyInfosLocalBuild" DependsOnTargets="CheckVersion;PrepareBuildProperties;UpdateVersionProps">
     <MSBuild Projects="$(MSBuildProjectFile)"
              BuildInParallel="false"
-             Targets="UpdateAssemblyInfos"
-             Properties="ConfigurationID=Debug;"/>
+             Targets="UpdateAssemblyInfos;CleanAssemblyBackup"
              Properties="ConfigurationID=Debug;$(BuildProperties);"/>
   </Target>
 
