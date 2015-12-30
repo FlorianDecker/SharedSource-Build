@@ -5,7 +5,6 @@ $Location = $PSScriptRoot
 . $Location"\jira_functions.ps1"
 . $Location"\semver_functions.ps1" 
 . $Location"\main_helper_functions.ps1"
-. $Location"\main_complex_functions.ps1"
 . $Location"\read_functions.ps1"
 . $Location"\check_functions.ps1"
 . $Location"\msbuild_functions.ps1"

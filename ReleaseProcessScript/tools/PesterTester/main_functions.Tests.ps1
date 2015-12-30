@@ -3,7 +3,6 @@
 . $PSScriptRoot"\Test_Functions.ps1"
 . $PSScriptRoot"\..\Core\config_functions.ps1"
 . $PSScriptRoot"\..\Core\jira_functions.ps1"
-. $PSScriptRoot"\..\Core\main_complex_functions.ps1"
 . $PSScriptRoot"\..\Core\main_helper_functions.ps1"
 . $PSScriptRoot"\..\Core\read_functions.ps1"
 
