@@ -159,6 +159,7 @@
              BuildInParallel="false"
              Targets="UpdateAssemblyInfos"
              Properties="ConfigurationID=Debug;"/>
+             Properties="ConfigurationID=Debug;$(BuildProperties);"/>
   </Target>
 
   <!-- Customization Targets -->

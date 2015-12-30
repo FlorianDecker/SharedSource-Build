@@ -19,7 +19,7 @@
 
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
   <PropertyGroup xdt:Transform="InsertIfMissing">
-    <AssemblyInfoFile>AssemblyInfoShared.*</AssemblyInfoFile>
+    <AssemblyInfoFile>$(SolutionDirectory)AssemblyInfoShared.*</AssemblyInfoFile>
     <CompanyName>rubicon IT GmbH</CompanyName>
     <CompanyUrl>http://www.rubicon.eu</CompanyUrl>
     <Copyright>Copyright (c) rubicon IT GmbH, www.rubicon.eu - Licensed under GNU LGPL 2.1 (or later)</Copyright>
