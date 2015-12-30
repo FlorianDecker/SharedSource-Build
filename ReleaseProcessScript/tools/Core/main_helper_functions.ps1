@@ -20,6 +20,18 @@ function Create-And-Release-Jira-Versions ($CurrentVersion, $NextVersion, $Squas
     Jira-Release-Version $CurrentVersionId $NextVersionId $SquashUnreleased
 }
 
+function Find-Next-Patch ($LastVersion)
+{
+  $CurrentVersion Get-Next-Patch $LastVersion
+  
+  while (Get-Tag-Exists v$($CurrentVersion))
+  {
+    $CurrentVersion = Get-Next-Patch $LastVersion
+  }
+
+  return $CurrentVersion
+}
+
 function Get-Develop-Current-Version ($StartReleasebranch)
 {
     if ($StartReleasebranch)
@@ -36,9 +48,6 @@ function Get-Develop-Current-Version ($StartReleasebranch)
 
     #Get last Tag from master (because Get-Last-Version-Of-Branch-From-Tag does not reach master, so the master commit could be the most recent)
     $MasterVersion = Get-Last-Version-Of-Branch-From-Tag "master"
-
-    Write-Error "DevelopVersion: $($DevelopVersion)"
-    Write-Error "MasterVersion: $($MasterVersion)"
 
     #Take most recent
     $MostRecentVersion = Get-Most-Recent-Version $DevelopVersion.Substring(1) $MasterVersion.Substring(1)

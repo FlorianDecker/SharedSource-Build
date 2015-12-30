@@ -74,7 +74,7 @@ function Release-Version ()
     elseif (Is-On-Branch "master")
     {
       $LastVersion = Get-Last-Version-Of-Branch-From-Tag "master"
-      $CurrentVersion = Get-Next-Patch $LastVersion.Substring(1)
+      $CurrentVersion = Find-Next-Patch $LastVersion.Substring(1)
       Release-Patch -StartReleasePhase:$StartReleasePhase -CurrentVersion $CurrentVersion -PauseForCommit:$PauseForCommit -DoNotPush:$DoNotPush -CommitHash $CommitHash -OnMaster:$TRUE
       
     }
