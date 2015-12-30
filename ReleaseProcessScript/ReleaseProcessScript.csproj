@@ -7,8 +7,8 @@
     <ProjectGuid>{12329089-3113-4AE3-9F86-F5F4273628CC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ReleaseProcessScript</RootNamespace>
-    <AssemblyName>ReleaseProcessScript</AssemblyName>
+    <RootNamespace>Remotion.ReleaseProcessScript</RootNamespace>
+    <AssemblyName>Remotion.ReleaseProcessScript</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -62,7 +62,6 @@
     <None Include="tools\Core\git_base_functions.ps1" />
     <None Include="tools\Core\jira_functions.ps1" />
     <None Include="tools\Core\load_dll.ps1" />
-    <None Include="tools\Core\main_complex_functions.ps1" />
     <None Include="tools\Core\main_functions.ps1" />
     <None Include="tools\Core\main_helper_functions.ps1" />
     <None Include="tools\Core\msbuild_functions.ps1" />
