@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>ReleaseProcessScript</id>
+    <id>$id$</id>
     <version>$version$</version>
-    <title>Re-Motion ReleaseProcessScript</title>
-    <authors>test</authors>
-    <owners>test</owners>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
     <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
     <projectUrl>http://www.re-motion.org</projectUrl>
-    <description>Process Script for the Remotion Build Process</description>
-    <copyright>test</copyright>
-    <tags>re-motion</tags>
+    <description>$description$</description>
+    <copyright>$copyright$</copyright>
+    <tags>re-motion Powershell Git</tags>
     <developmentDependency>true</developmentDependency>
     <dependencies>
       <dependency id="NuGet.CommandLine" version="2.8.6" />
@@ -18,8 +18,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="tools\**\*.*" target="tools" />
+    <file src="tools\*.*" target="tools"/>
+    <file src="tools\Core\*.*" target="tools\Core"/>
     <file src="Customizations\**\*.*" target="content\Customizations" />
-	</files>
+  </files>
   
 </package>
