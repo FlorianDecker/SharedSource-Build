@@ -81,7 +81,7 @@ function Release-Version ()
     }
     else
     {
-      throw "You have to be on either a 'support/*' or 'release/*' or 'develop' branch to release a version."
+      throw "You have to be on either a 'support/*' or 'release/*' or 'develop' or 'master' branch to release a version."
     }
 }
 
