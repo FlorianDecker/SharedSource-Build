@@ -81,7 +81,7 @@ function Read-Current-Version ($VersionFromTag)
 {
     if ([string]::IsNullOrEmpty($VersionFromTag))
     {
-      $CurrentVersion = Read-Host "No version found. Please enter version you want to release"
+      $CurrentVersion = Read-Host "No version found. Please enter version you want to release (as example: '1.0.0-alpha.1')"
     } 
     else
     {

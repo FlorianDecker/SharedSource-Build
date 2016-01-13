@@ -1,4 +1,5 @@
-function Parse-Version-From-ReleaseBranch ($Branchname){
+function Parse-Version-From-ReleaseBranch ($Branchname)
+{
     $SplitBranchname = $Branchname.Split("/v")
 
     if ($SplitBranchname.Length -ne 3)
@@ -43,6 +44,11 @@ function Get-Develop-Current-Version ($StartReleasebranch)
       $WithoutPrerelease = $FALSE
     }
 
+    if (-not (Get-Exists-Valid-Semver) )
+    {
+      return Read-Current-Version
+    }
+
     #Get last Tag from develop
     $DevelopVersion = Get-Last-Version-Of-Branch-From-Tag
 
@@ -57,6 +63,18 @@ function Get-Develop-Current-Version ($StartReleasebranch)
     $CurrentVersion = Read-Version-Choice $PossibleVersions
 
     return $CurrentVersion
+}
+
+function Get-Exists-Valid-Semver ()
+{
+   if (Get-Last-Version-Of-Branch-From-Tag-Exists)
+   {
+     return $TRUE
+   }
+   else
+   {
+     return $FALSE
+   }
 }
 
 function Get-Support-Current-Version ($SupportVersion, $StartReleasePhase)
