@@ -54,7 +54,7 @@
       <!-- Target framework is already expressed via the TargetFrameworkAttribute injected via csc.exe -->
       <_configuration>Build type: $(ConfigurationID)</_configuration>
     </PropertyGroup>
-
+    
     <MSBuild.ExtensionPack.Framework.AssemblyInfo AssemblyInfoFiles="%(_assemblyInfos.Identity)"
                                                   AssemblyVersion="$(AssemblyVersion)"
                                                   AssemblyFileVersion="$(AssemblyFileVersion)"
@@ -68,4 +68,17 @@
     <Message Text="Done updating assembly infos, ConfigurationID=$(ConfigurationID)" Importance="High"/>
   </Target>
 
+  <Target Name="UpdateVersionProps">
+    <XmlPoke
+      XmlInputPath="$(CustomizationsDirectory)Version.props"
+      Namespaces="&lt;Namespace Prefix='x'
+        Uri='http://schemas.microsoft.com/developer/msbuild/2003'/&gt;"
+      Query="//x:PropertyGroup/x:Version"
+      Value="$(Version)"
+     />
+  </Target>
+
+  <Target Name="CleanAssemblyBackup">
+    <Delete Files="%(_assemblyInfosWithBackup.Backup)" />
+  </Target>
 </Project>
