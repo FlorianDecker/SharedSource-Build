@@ -8,10 +8,11 @@ function Load-Dependency-Dll ()
     $SolutionDirectory = git rev-parse --show-toplevel
     #$package = Get-Package -Filter -"Remotion.BuildTools.MSBuildTasks"
     #Todo: Remove Hardcoded path
-    $PackagePath = "$($SolutionDirectory)/packages/Remotion.BuildTools.MSBuildTasks.$($BuildToolsVersion)/tools/"
+    $BuildToolsPackagePath = "$($SolutionDirectory)/packages/Remotion.BuildTools.MSBuildTasks.$($BuildToolsVersion)/lib/net45/"
+    $RestPackagePath = "$($SolutionDirectory)/packages/Remotion.BuildTools.MSBuildTasks.$($BuildToolsVersion)/tools/"
 
-    Load-Dll (Join-Path $PackagePath "Remotion.BuildTools.MSBuildTasks.dll") > $NULL
-    Load-Dll (Join-Path $PackagePath "RestSharp.dll") > $NULL
+    Load-Dll (Join-Path $BuildToolsPackagePath "Remotion.BuildTools.MSBuildTasks.dll") > $NULL
+    Load-Dll (Join-Path $RestPackagePath "RestSharp.dll") > $NULL
 }
 
 function Load-Dll ($Path)
