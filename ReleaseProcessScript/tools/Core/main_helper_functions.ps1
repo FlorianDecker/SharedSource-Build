@@ -22,7 +22,7 @@ function Create-And-Release-Jira-Versions ($CurrentVersion, $NextVersion, $Squas
 
 function Find-Next-Patch ($LastVersion)
 {
-  $CurrentVersion Get-Next-Patch $LastVersion
+  $CurrentVersion = Get-Next-Patch $LastVersion
   
   while (Get-Tag-Exists v$($CurrentVersion))
   {
