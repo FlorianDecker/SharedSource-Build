@@ -39,7 +39,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="tools\about_ReleaseProcessScript.help.txt" />
+    <None Include="tools\about_ReleaseProcessScript.help.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\license\Apache-2.0.licenseheader">
@@ -47,6 +47,7 @@
     </None>
     <None Include="Customizations\releaseProcessScript.config.install.xdt" />
     <None Include="Customizations\releaseProcessScript.config.transform" />
+    <None Include="packages.config" />
     <None Include="ReleaseProcessScript.nuspec">
       <SubType>Designer</SubType>
     </None>
