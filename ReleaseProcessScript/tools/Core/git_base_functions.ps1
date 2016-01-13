@@ -21,6 +21,11 @@ function Get-Current-Branchname ()
     return $(git symbolic-ref --short -q HEAD)
 }
 
+function Get-Last-Version-Of-Branch-From-Tag-Exists ($Branchname)
+{
+    return (git describe $Branchname --match "v[0-9]*" --abbrev=0 2>&1) -and $?
+}
+
 function Get-Last-Version-Of-Branch-From-Tag ($Branchname)
 {
     return git describe $Branchname --match "v[0-9]*" --abbrev=0
@@ -68,22 +73,42 @@ function Push-To-Repos ($Branchname, $WithTags)
         
         $RemoteNameOfBranch = Get-Remote-Of-Branch $Branchname
 
+        #Our Branch has no tracking reference defined (probably a new branch)
         if ([string]::IsNullOrEmpty($RemoteNameOfBranch) )
         {
           $Ancestor = Get-Ancestor
-          $RemoteNameOfBranch = Get-Remote-Of-Branch $Ancestor
+          $RemoteNameOfBranch = $NULL
 
-          if ([string]::IsNullOrEmpty($RemoteNameOfBranch) )
+          if ($Ancestor -ne $NULL)
           {
-            Write-Host "No remote found for Branch. Please choose to which remote the Branch $($Branchname) should set its tracking reference: "
-            $RemoteName = Read-Version-Choice  $RemoteUrlArray
-            & git push -u $RemoteName $Branchname $PostFix 2>&1 | Write-Host
-            return
-          }
+            $RemoteNameOfAncestor = Get-Remote-Of-Branch $Ancestor
+          } 
           
-          if ($RemoteNameOfBranch -eq $RemoteName)
+          #And we also cant find an Ancestor with a tracking reference defined
+          if ([string]::IsNullOrEmpty($RemoteNameOfAncestor) )
           {
+            #If there is only one remote defined, we take that as tracking reference (count -eq 2 because they are saved as pairs)
+            if ($RemoteUrlArray -and $RemoteUrlArray -eq 2)
+            {
+              $RemoteName = $RemoteUrlArray[0]
+            }
+            else
+            {
+              Write-Host "No remote found for Branch. Please choose to which remote the Branch $($Branchname) should set its tracking reference: "
+              
+              #Build Array displaying "remotename  remoteurl" to choose from
+              $DisplayRemotesArray = for ($i = 0; $i -lt $RemoteUrlArray.count; $i += 2) { "$($RemoteUrlArray[$i].Split(".")[1]) $($RemoteUrlArray[$i + 1])" }
+              
+              #Split returning "remotename remoteurl" to get remoteurl
+              $RemoteName = (Read-Version-Choice  $DisplayRemotesArray).Split()[1]
+            }
+
             $SetUpstream = "-u"
+            
+          }
+          elseif ($RemoteNameOfBranch -eq $RemoteName)
+          {
+             $SetUpstream = "-u"
           }
         } 
 
@@ -92,7 +117,6 @@ function Push-To-Repos ($Branchname, $WithTags)
     }
     
     git checkout $BeforeBranchname 2>&1 --quiet
-
 }
 
 function Get-Config-Remotes-Array ()
@@ -103,7 +127,7 @@ function Get-Config-Remotes-Array ()
 
     if (-not [string]::IsNullOrEmpty($GitConfigRemoteUrls))
     {
-      $SplitGitConfigRemoteUrls = $GitConfigRemoteUrls.Split().Split(" ")    
+      $SplitGitConfigRemoteUrls = $GitConfigRemoteUrls.Split().Split(" ")
     }
 
     return $SplitGitConfigRemoteUrls
@@ -259,6 +283,11 @@ function Get-Ancestor ($Branchname)
   }
   
   $Ancestor = git show-branch | where-object { $_.Contains('*') -eq $TRUE } | Where-object { $_.Contains($Branchname) -ne $TRUE } | select -first 1 | % {$_ -replace('.*\[(.*)\].*','$1')} | % { $_ -replace('[\^~].*','') }
+
+  if ($Ancestor -eq $NULL)
+  {
+    return $NULL
+  }
 
   if ( ($Ancestor -eq "develop") -or ($Ancestor.StartsWith("support/")) -or ($Ancestor -eq "master") )
   {
