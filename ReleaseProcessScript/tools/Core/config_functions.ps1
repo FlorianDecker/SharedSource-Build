@@ -30,6 +30,14 @@ function Get-Config-File ()
 function Get-Config-File-Path ()
 {
     $TopLevelPath = git rev-parse --show-toplevel 2>&1
+    $MarkerFile = Get-Marker-File
+
+    return (Join-path $TopLevelPath $MarkerFile.configFile.path)
+}
+
+function Get-Marker-File ()
+{
+    $TopLevelPath = git rev-parse --show-toplevel 2>&1
     $MarkerName = ".BuildProject"
 
     $MarkerPath = Join-Path $TopLevelPath $MarkerName
@@ -46,9 +54,7 @@ function Get-Config-File-Path ()
       }
     }
 
-    [xml]$MarkerFile = Get-Content $MarkerPath
-
-    return (Join-path $TopLevelPath $MarkerFile.configFile.path)
+    return [xml]$MarkerFile = Get-Content $MarkerPath
 }
 
 function Config-Use-NTLM

@@ -6,6 +6,7 @@ $MarkerTemplate =
 <!--Marks the path fo the releaseProcessScript config file-->
 <configFile>
     <path>Build/Customizations/releaseProcessScript.config</path>
+    <buildToolsVersion>1.0.5827.25795</buildToolsVersion>
 </configFile>"
 
 if (-not (Test-Path $MarkerName))

@@ -2,11 +2,13 @@ $Location = $PSScriptRoot
 
 function Load-Dependency-Dll ()
 {
-    
+    $MarkerFile = Get-Marker-File
+    $BuildToolsVersion = $MarkerFile.configFile.buildToolsVersion
+
     $SolutionDirectory = git rev-parse --show-toplevel
     #$package = Get-Package -Filter -"Remotion.BuildTools.MSBuildTasks"
     #Todo: Remove Hardcoded path
-    $PackagePath = "$($SolutionDirectory)/packages/Remotion.BuildTools.MSBuildTasks.1.0.5745.12485/tools/"
+    $PackagePath = "$($SolutionDirectory)/packages/Remotion.BuildTools.MSBuildTasks.$($BuildToolsVersion)/tools/"
 
     Load-Dll (Join-Path $PackagePath "Remotion.BuildTools.MSBuildTasks.dll") > $NULL
     Load-Dll (Join-Path $PackagePath "RestSharp.dll") > $NULL
