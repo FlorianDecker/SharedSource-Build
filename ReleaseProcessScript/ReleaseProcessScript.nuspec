@@ -14,6 +14,7 @@
     <developmentDependency>true</developmentDependency>
     <dependencies>
       <dependency id="NuGet.CommandLine" version="2.8.6" />
+      <!-- If Version gets updated, update string in load_dll.ps1-->
       <dependency id="Remotion.BuildTools.MSBuildTasks" version="1.0.5745.12485"/>
     </dependencies>
   </metadata>
