@@ -46,9 +46,8 @@
       
       foreach ($Argument in $Step.msBuildCallArguments.argument)
       {
-        $Argument = $Argument -replace "{version}", $CurrentVersion
-        $Argument = $Argument -replace "{Version}", $CurrentVersion
-
+        $Argument = $Argument -replace "{[vV]ersion}", $CurrentVersion
+        
         $MsBuildCallArray += $Argument
       }
       
@@ -75,8 +74,7 @@
       } 
       else
       {
-        $CommitMessage = $CommitMessage -replace "{version}", $CurrentVersion
-        $CommitMessage = $CommitMessage -replace "{Version}", $CurrentVersion
+        $CommitMessage = $CommitMessage -replace "{[vV]ersion}", $CurrentVersion
         
         git add -A 2>&1 | Write-Host
         git commit -m $CommitMessage 2>&1 | Write-Host
