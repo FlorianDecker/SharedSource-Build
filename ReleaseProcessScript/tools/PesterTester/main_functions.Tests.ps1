@@ -41,7 +41,7 @@ Describe "main_functions" {
 
             $RemoteUrl = "$($PSScriptRoot)\$($TestDirName)"
             $ConfigFile = Get-Config-File
-            $RemoteUrlNodes = $ConfigFile.SelectNodes("//remoteUrl")
+            $RemoteUrlNodes = $ConfigFile.SelectNodes("//remoteName")
             
             foreach ($Node in $RemoteUrlNodes)
             {

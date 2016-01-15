@@ -18,45 +18,49 @@
 -->
 
 <settings xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
-    <jira xdt:Transform="InsertIfMissing">
-      <jiraUrl></jiraUrl>
-      <jiraProjectKey></jiraProjectKey>
-      <useNTLM>no</useNTLM>
-    </jira>
-    <remoteRepositories xdt:Transform="InsertIfMissing">
-      <remoteUrl></remoteUrl>
-    </remoteRepositories>
-    <prereleaseMergeIgnoreList xdt:Transform="InsertIfMissing">
-      <fileName></fileName>
-      <fileName></fileName>
-    </prereleaseMergeIgnoreList>
-    <tagStableMergeIgnoreList xdt:Transform="InsertIfMissing">
-      <fileName></fileName>
-      <fileName></fileName>
-    </tagStableMergeIgnoreList>
-	<developStableMergeIgnoreList xdt:Transform="InsertIfMissing">
-      <fileName></fileName>
-      <fileName></fileName>
-    </developStableMergeIgnoreList>
-    <msBuildSettings xdt:Transform="InsertIfMissing">
-      <msBuildPath>C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe</msBuildPath>
-    </msBuildSettings>
-    <prepareNextVersionMsBuildSteps xdt:Transform="InsertIfMissing">
-      <step>
-        <msBuildCallArguments>
-          <argument>Build\Remotion.Local.build</argument>
-          <argument>/t:TestBuild</argument>
-        </msBuildCallArguments>
-        <commitMessage>Update Assemblyinfo to version '{version}'</commitMessage>
-      </step>
-    </prepareNextVersionMsBuildSteps>
-    <developmentForNextReleaseMsBuildSteps xdt:Transform="InsertIfMissing">
-      <step>
-        <msBuildCallArguments>
-          <argument>Build\Remotion.Local.build</argument>
-          <argument>/t:TestBuild</argument>
-        </msBuildCallArguments>
-        <commitMessage>Update Assemblyinfo to version '{version}'</commitMessage>
-      </step>
-    </developmentForNextReleaseMsBuildSteps>
+  <jira xdt:Transform="InsertIfMissing">
+    <jiraUrl>https://www.re-motion.org/jira</jiraUrl>
+    <jiraProjectKey></jiraProjectKey>
+    <useNTLM>no</useNTLM>
+  </jira>
+  <remoteRepositories>
+    <remoteName></remoteName>
+  </remoteRepositories>
+  <prereleaseMergeIgnoreList>
+    <fileName>AssemblyInfoShared.cs</fileName>
+    <fileName>Build/Customizations/Version.props</fileName>
+  </prereleaseMergeIgnoreList>
+  <tagStableMergeIgnoreList>
+    <fileName>
+    </fileName>
+    <fileName>
+    </fileName>
+  </tagStableMergeIgnoreList>
+  <developStableMergeIgnoreList>
+    <fileName>AssemblyInfoShared.cs</fileName>
+    <fileName>Build/Customizations/Version.props</fileName>
+  </developStableMergeIgnoreList>
+  <msBuildSettings>
+    <msBuildPath>C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe</msBuildPath>
+  </msBuildSettings>
+  <prepareNextVersionMsBuildSteps>
+    <step>
+      <msBuildCallArguments>
+        <argument>Build\Remotion.Local.build</argument>
+        <argument>/t:UpdateAssemblyInfosLocalBuild</argument>
+        <argument>/property:Version={version}</argument>
+      </msBuildCallArguments>
+      <commitMessage>Update Assemblyinfo to version '{version}'</commitMessage>
+    </step>
+  </prepareNextVersionMsBuildSteps>
+  <developmentForNextReleaseMsBuildSteps>
+    <step>
+      <msBuildCallArguments>
+        <argument>Build\Remotion.Local.build</argument>
+        <argument>/t:UpdateAssemblyInfosLocalBuild</argument>
+        <argument>/property:Version={version}</argument>
+      </msBuildCallArguments>
+      <commitMessage>Update Assemblyinfo to version '{version}'</commitMessage>
+    </step>
+  </developmentForNextReleaseMsBuildSteps>
 </settings>

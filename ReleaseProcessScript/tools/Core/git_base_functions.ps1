@@ -6,9 +6,9 @@ function Get-Branch-Exists ($Branchname)
     return (git show-ref --verify -- "refs/heads/$($Branchname)" 2>&1) -and $?
 }
 
-function Get-Branch-Exists-Remote ($RemoteUrl, $Branchname)
+function Get-Branch-Exists-Remote ($RemoteName, $Branchname)
 {
-    return (git ls-remote --heads $RemoteUrl $Branchname 2>&1) -and $?
+    return (git ls-remote --heads $RemoteName $Branchname 2>&1) -and $?
 }
 
 function Get-Tag-Exists ($Tagname)
@@ -60,23 +60,23 @@ function Push-To-Repos ($Branchname, $WithTags)
     }
 
     $ConfigFile = Get-Config-File
-    $RemoteUrls = $ConfigFile.settings.remoteRepositories
-    $RemoteUrlArray = Get-Config-Remotes-Array
+    $RemoteNames = $ConfigFile.settings.remoteRepositories.remoteName
+    $GitConfigRemotes = Get-Config-Remotes-Array
 
-    foreach ($RemoteUrl in $RemoteUrls.remoteUrl)
+    foreach ($RemoteName in $RemoteNames)
     {
-      if (-not [string]::IsNullOrEmpty($RemoteUrl) )
+      if (-not [string]::IsNullOrEmpty($RemoteName) )
       {
         $SetUpstream = [string]::Empty
 
-        $RemoteName = Get-Remote-Name-From-Url $RemoteUrlArray $RemoteUrl
-        
         $RemoteNameOfBranch = Get-Remote-Of-Branch $Branchname
 
         #Our Branch has no tracking reference defined (probably a new branch)
         if ([string]::IsNullOrEmpty($RemoteNameOfBranch) )
         {
-          $Ancestor = Get-Ancestor
+          $WithoutAsking = $TRUE
+          $Ancestor = Get-Ancestor $NULL $WithoutAsking
+
           $RemoteNameOfBranch = $NULL
 
           if ($Ancestor -ne $NULL)
@@ -88,19 +88,19 @@ function Push-To-Repos ($Branchname, $WithTags)
           if ([string]::IsNullOrEmpty($RemoteNameOfAncestor) )
           {
             #If there is only one remote defined, we take that as tracking reference (count -eq 2 because they are saved as pairs)
-            if ($RemoteUrlArray -and $RemoteUrlArray -eq 2)
+            if ($GitConfigRemotes -and $GitConfigRemotes.Count -eq 2)
             {
-              $RemoteName = $RemoteUrlArray[0]
+              $RemoteName = $GitConfigRemotes[1]
             }
             else
             {
               Write-Host "No remote found for Branch. Please choose to which remote the Branch $($Branchname) should set its tracking reference: "
               
               #Build Array displaying "remotename  remoteurl" to choose from
-              $DisplayRemotesArray = for ($i = 0; $i -lt $RemoteUrlArray.count; $i += 2) { "$($RemoteUrlArray[$i].Split(".")[1]) $($RemoteUrlArray[$i + 1])" }
+              $DisplayGitConfigRemotes = for ($i = 0; $i -lt $GitConfigRemotes.count; $i += 2) { "$($GitConfigRemotes[$i].Split(".")[1]) $($GitConfigRemotes[$i + 1])" }
               
-              #Split returning "remotename remoteurl" to get remoteurl
-              $RemoteName = (Read-Version-Choice  $DisplayRemotesArray).Split()[1]
+              #Read-Version-Choice returning "remotename remoteurl", split it to get remotename
+              $RemoteName = (Read-Version-Choice  $DisplayGitConfigRemotes).Split()[0]
             }
 
             $SetUpstream = "-u"
@@ -125,30 +125,13 @@ function Get-Config-Remotes-Array ()
     $GitConfigRemoteUrls = git config --get-regexp remote.*.url
     $SplitGitConfigRemoteUrls = $NULL
 
+    #Split entries into an array containing alternately remote.<remotename>.url and <remoteurl>
     if (-not [string]::IsNullOrEmpty($GitConfigRemoteUrls))
     {
-      $SplitGitConfigRemoteUrls = $GitConfigRemoteUrls.Split().Split(" ")
+      $SplitGitConfigRemoteUrls = $GitConfigRemoteUrls.Split().Split()
     }
 
     return $SplitGitConfigRemoteUrls
-}
-
-function Get-Remote-Name-From-Url ($RemoteUrlArray, $RemoteUrl)
-{
-    if ($RemoteUrlArray  -eq $NULL)
-    {
-        throw "No Remotes found in .git config"
-    }
-
-    $FoundIndex = [array]::IndexOf($RemoteUrlArray , $RemoteUrl)
-
-    if ($FoundIndex -eq -1)
-    {
-        throw "Remote url '$($RemoteUrl)' not found in .git config."
-    }
-        
-    #FoundIndex-1 gives use the respective "remote.<remotename>.url" and we parse it for <remotename>
-    return $RemoteUrlArray[$FoundIndex-1].Split(".")[1]
 }
 
 function Check-Branch-Up-To-Date($Branchname)
@@ -156,16 +139,14 @@ function Check-Branch-Up-To-Date($Branchname)
     git checkout $Branchname --quiet
 
     $ConfigFile = Get-Config-File
-    $RemoteUrls = $ConfigFile.settings.remoteRepositories.remoteUrl
+    $RemoteNames = $ConfigFile.settings.remoteRepositories.remoteName
 
-    $RemoteUrlArray = Get-Config-Remotes-Array
+    $GitConfigRemotes = Get-Config-Remotes-Array
 
-    foreach ($RemoteUrl in $RemoteUrls)
+    foreach ($RemoteName in $RemoteNames)
     {
-      if (-not [string]::IsNullOrEmpty($RemoteUrl))
+      if (-not [string]::IsNullOrEmpty($RemoteName))
       {
-        $RemoteName = Get-Remote-Name-From-Url $RemoteUrlArray $RemoteUrl
-
         if (-Not (Get-Branch-Exists-Remote $Remotename $Branchname) )
         {
           continue 
@@ -183,7 +164,7 @@ function Check-Branch-Up-To-Date($Branchname)
         } 
         elseif ($Local -eq $Base)
         {
-          throw "Need to pull, local '$($Branchname)' branch is behind on repository '$($RemoteUrl)'."
+          throw "Need to pull, local '$($Branchname)' branch is behind on repository '$($RemoteName)'."
         } 
         elseif ($Remote -eq $Base)
         {
@@ -191,7 +172,7 @@ function Check-Branch-Up-To-Date($Branchname)
         } 
         else
         {
-          throw "'$($Branchname)' diverged, need to rebase at repository '$($RemoteUrl)'."
+          throw "'$($Branchname)' diverged, need to rebase at repository '$($RemoteName)'."
         }
       }
     }
@@ -275,7 +256,7 @@ function Get-Remote-Of-Branch ($Branchname)
     return git config "branch.$($Branchname).remote"
 }
 
-function Get-Ancestor ($Branchname)
+function Get-Ancestor ($Branchname, $WithoutAsking)
 {
   if ([string]::IsNullOrEmpty($Branchname))
   {
@@ -293,10 +274,15 @@ function Get-Ancestor ($Branchname)
   {
     return $Ancestor
   }
-  else
+  elseif (-not $WithoutAsking)
   {
-    Write-Host "Cannot determine ancestor of current release branch. Please enter the ancestor (develop, support/v*.*)." 
+    Write-Host "Cannot determine ancestor of current release branch. Please enter the ancestor (develop, support/v*.*)."
+    Write-Host "Ancestor: $($Ancestor)" 
     [string]$Ancestor = Read-Host "Pleace enter ancestor branchname"
     return $Ancestor
+  }
+  else
+  {
+    return $NULL
   }
 }

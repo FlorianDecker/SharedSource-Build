@@ -527,6 +527,6 @@ function Continue-Pre-Release ()
       return
     }
 
-    Push-To-Repos $MergeBranchName
+    Push-To-Repos $PrereleaseBranchname
     Push-To-Repos $CurrentBranchname $TRUE
 }

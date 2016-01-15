@@ -98,21 +98,10 @@ Describe "git_base_functions" {
             git checkout master --quiet
             
             $RemoteUrl = "$($PSScriptRoot)\$($TestDirName)"
-            git remote add testRemote $RemoteUrl            
-            
-            $ConfigFile = Get-Config-File
-          
-            $OldRemoteUrlNodes = $ConfigFile.SelectNodes("//remoteUrl")
-            foreach ($Node in $OldRemoteUrlNodes)
-            {
-              $ConfigFile.settings.remoteRepositories.RemoveChild($Node)
-            }
+            $RemoteName = "testRemote"
+            Test-Replace-Config-With-New-Remote $RemoteUrl $RemoteName
 
-            $RemoteUrlNode = $ConfigFile.CreateElement("remoteUrl")
-            $ConfigFile.SelectSingleNode("//remoteRepositories").AppendChild($RemoteUrlNode)
-            $ConfigFile.settings.remoteRepositories.remoteUrl = $RemoteUrl
-
-            { Check-Branch-Up-To-Date "master" } | Should Throw "Need to pull, local 'master' branch is behind on repository '$($RemoteUrl)'."
+            { Check-Branch-Up-To-Date "master" } | Should Throw "Need to pull, local 'master' branch is behind on repository '$($RemoteName)'."
         }
 
         It "Check-Branch-Up-To-Date_BranchesDiverged_ShouldThrowException" {
@@ -128,21 +117,12 @@ Describe "git_base_functions" {
             git checkout master --quiet
             
             $RemoteUrl = "$($PSScriptRoot)\$($TestDirName)"
-            git remote add testRemote $RemoteUrl  
-            $ConfigFile = Get-Config-File
-          
-            $OldRemoteUrlNodes = $ConfigFile.SelectNodes("//remoteUrl")
-            foreach ($Node in $OldRemoteUrlNodes)
-            {
-              $ConfigFile.settings.remoteRepositories.RemoveChild($Node)
-            }
-
-            $RemoteUrlNode = $ConfigFile.CreateElement("remoteUrl")
-            $ConfigFile.SelectSingleNode("//remoteRepositories").AppendChild($RemoteUrlNode)
-            $ConfigFile.settings.remoteRepositories.remoteUrl = $RemoteUrl
+            $RemoteName = "testRemote"
+            Test-Replace-Config-With-New-Remote $RemoteUrl $RemoteName
 
 
-            { Check-Branch-Up-To-Date "master" } | Should Throw "'master' diverged, need to rebase at repository '$($RemoteUrl)'."
+
+            { Check-Branch-Up-To-Date "master" } | Should Throw "'master' diverged, need to rebase at repository '$($RemoteName)'."
         }
 
         It "Check-Branch-Up-To-Date_RemoteBranchBehind_ShouldNotThrow" {
@@ -155,18 +135,8 @@ Describe "git_base_functions" {
             Test-Add-Commit
 
             $RemoteUrl = "$($PSScriptRoot)\$($TestDirName)"
-            git remote add testRemote $RemoteUrl
-            $ConfigFile = Get-Config-File
-          
-            $OldRemoteUrlNodes = $ConfigFile.SelectNodes("//remoteUrl")
-            foreach ($Node in $OldRemoteUrlNodes)
-            {
-              $ConfigFile.settings.remoteRepositories.RemoveChild($Node)
-            }
+            Test-Replace-Config-With-New-Remote $RemoteUrl "testRemote"
 
-            $RemoteUrlNode = $ConfigFile.CreateElement("remoteUrl")
-            $ConfigFile.SelectSingleNode("//remoteRepositories").AppendChild($RemoteUrlNode)
-            $ConfigFile.settings.remoteRepositories.remoteUrl = $RemoteUrl
 
             { Check-Branch-Up-To-Date "master" } | Should Not Throw 
         }
@@ -180,18 +150,7 @@ Describe "git_base_functions" {
             git checkout master --quiet
 
             $RemoteUrl = "$($PSScriptRoot)\$($TestDirName)"
-            git remote add testRemote $RemoteUrl
-            $ConfigFile = Get-Config-File
-          
-            $OldRemoteUrlNodes = $ConfigFile.SelectNodes("//remoteUrl")
-            foreach ($Node in $OldRemoteUrlNodes)
-            {
-              $ConfigFile.settings.remoteRepositories.RemoveChild($Node)
-            }
-
-            $RemoteUrlNode = $ConfigFile.CreateElement("remoteUrl")
-            $ConfigFile.SelectSingleNode("//remoteRepositories").AppendChild($RemoteUrlNode)
-            $ConfigFile.settings.remoteRepositories.remoteUrl = $RemoteUrl
+            Test-Replace-Config-With-New-Remote $RemoteUrl "testRemote"
 
             { Check-Branch-Up-To-Date "master" } | Should Not Throw 
         }
