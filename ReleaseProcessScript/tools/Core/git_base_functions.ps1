@@ -51,6 +51,12 @@ function Is-On-Branch ($Branchname)
 
 function Push-To-Repos ($Branchname, $WithTags)
 {
+  #Config file should probably be loaded if Release-Version was called before. If not we try if there is a correct config File in the current Branch
+  if (Get-Config-File -eq $NULL)
+  {
+    Load-Config-File
+  }
+
   $BeforeBranchname = Get-Current-Branchname
 
   git checkout $Branchname 2>&1 --quiet
