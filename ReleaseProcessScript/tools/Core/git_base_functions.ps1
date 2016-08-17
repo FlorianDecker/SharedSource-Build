@@ -94,24 +94,11 @@ function Push-To-Repos ($Branchname, $WithTags)
         #And we also cant find an Ancestor with a tracking reference defined
         if ([string]::IsNullOrEmpty($RemoteNameOfAncestor) )
         {
-          #If there is only one remote defined, we take that as tracking reference (count -eq 2 because they are saved as pairs)
-          if ($GitConfigRemotes -and $GitConfigRemotes.Count -eq 2)
+          #Just assign the tracking reference to the first Remote defined in the releaseprocessscript.config
+          if ($RemoteName -eq $RemoteNames[0])
           {
-            $RemoteName = $GitConfigRemotes[1]
+            $SetUpstream = "-u"
           }
-          else
-          {
-            Write-Host "No remote found for Branch. Please choose to which remote the Branch $($Branchname) should set its tracking reference: "
-              
-            #Build Array displaying "remotename  remoteurl" to choose from
-            $DisplayGitConfigRemotes = for ($i = 0; $i -lt $GitConfigRemotes.count; $i += 2) { "$($GitConfigRemotes[$i].Split(".")[1]) $($GitConfigRemotes[$i + 1])" }
-              
-            #Read-Version-Choice returning "remotename remoteurl", split it to get remotename
-            $RemoteName = (Read-Version-Choice  $DisplayGitConfigRemotes).Split()[0]
-          }
-
-          $SetUpstream = "-u"
-            
         }
         elseif ($RemoteNameOfBranch -eq $RemoteName)
         {
