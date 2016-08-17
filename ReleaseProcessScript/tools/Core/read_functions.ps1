@@ -117,3 +117,11 @@ function Read-Current-Version ()
 
   return $CurrentVersion
 }
+
+
+function Read-Ancestor-Choice ($ExpectedAncestors, $ReturnAncestor) 
+{
+  Write-Host "We expected to find one of following Ancestors: '$ExpectedAncestors', but found multiple possible Ancestors."
+  $ChosenAncestor = Read-Version-Choice $ReturnAncestor
+  return $ChosenAncestor
+}

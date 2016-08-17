@@ -82,7 +82,7 @@ function Push-To-Repos ($Branchname, $WithTags)
       if ([string]::IsNullOrEmpty($RemoteNameOfBranch) )
       {
         $WithoutAsking = $TRUE
-        $Ancestor = Get-Ancestor $NULL $WithoutAsking
+        $Ancestor = Get-First-Ancestor
 
         $RemoteNameOfBranch = $NULL
 
@@ -250,61 +250,46 @@ function Get-Remote-Of-Branch ($Branchname)
   return git config "branch.$($Branchname).remote"
 }
 
-function Get-Ancestor ($Branchname, $WithoutAsking)
+function Get-First-Ancestor ()
 {
-  if ([string]::IsNullOrEmpty($Branchname))
-  {
-    $Branchname = Get-Current-Branchname
-  }
+  $Branchname = Get-Current-Branchname
   
-  $Ancestor = git show-branch | where-object { $_.Contains('*') -eq $TRUE } | Where-object { $_.Contains($Branchname) -ne $TRUE } | select -first 1 | % {$_ -replace('.*\[(.*)\].*','$1')} | % { $_ -replace('[\^~].*','') }
+  $Ancestor = git show-branch | Where-Object { $_.Contains('*') -eq $TRUE } | Where-Object { $_.Contains($Branchname) -ne $TRUE } | Select -First 1 | % {$_ -replace('.*\[(.*)\].*','$1')} | % { $_ -replace('[\^~].*','') }
+  
+  return $Ancestor
+}
 
-  if ($Ancestor -and ( ($Ancestor -eq "develop") -or ($Ancestor.StartsWith("support/")) -or ($Ancestor -eq "master") ))
+
+function Get-Ancestor ($ExpectedAncestors)
+{
+  $Branchname = Get-Current-Branchname
+  
+  $Ancestors = git show-branch | Where-Object { $_.Contains('!') -eq $TRUE } | Where-Object { $_.Contains($Branchname) -ne $TRUE } | % {$_ -replace('.*\[(.*)\].*','$1')} | % { $_ -replace('[\^~].*','') }
+
+  $ReturnAncestor = $NULL
+  foreach ($Ancestor in $Ancestors) 
   {
-    return $Ancestor
-  }
-  #There is no Ancestor in the History. 
-  #It is possible that develop or master or one support/v is on the current Head (Exclusive Or, in case we find more than one answer - the user has to decide).
-  else
-  {
-    $BranchesOnHead = Get-BranchHeads-On-Head
-    
-    #There is develop on the current Head and no master or support/v
-    if (List-Contains-Only-Develop $BranchesOnHead)
+    if ($ExpectedAncestors.Contains($Ancestor) -or $Ancestor.StartsWith($ExpectedAncestors))
     {
-      return "develop"
-    }
-    elseif (List-Contains-Only-Master $BranchesOnHead)
-    {
-      return "master"
-    }
-    elseif (List-Contains-Only-One-Support $BranchesOnHead)
-    {
-      return $BranchesOnHead | Where-Object { $_ -ne $NULL } | Where-Object { $_.StartsWith("support/") }
+      #In the List of Ancestors is more than one of the expected Ancestors. Commence to panic and ask the user
+      if ($ReturnAncestor -ne $NULL)
+      {
+        $ReturnAncestor = Read-Ancestor-Choice $ExpectedAncestors $ReturnAncestor
+        return $ReturnAncestor
+      }
+      else
+      {
+        $ReturnAncestor = $Ancestor
+      }
     }
   }
 
-  #As last resort ask the User
-  if (-not $WithoutAsking)
+  if ($ReturnAncestor -eq $NULL)
   {
-    Write-Host "Cannot determine ancestor of current release branch. Please enter the ancestor (develop, master, support/v*.*)."
-    
-    if ($Ancestor -eq $NULL)
-    {
-      Write-Host "No Ancestor found." 
-    }
-    else
-    {
-      Write-Host "Ancestor: '$($Ancestor)'." 
-    }
+     $ReturnAncestor = Read-Host "We expected some of the following Ancestors: '$ExpectedAncestors' but found none. Please enter the name of the Ancestor Branch"
+  }
 
-    [string]$Ancestor = Read-Host "Please enter ancestor branchname"
-    return $Ancestor
-  }
-  else
-  {
-    return $NULL
-  }
+  return $ReturnAncestor
 }
 
 function Get-BranchHeads-On-Head ()

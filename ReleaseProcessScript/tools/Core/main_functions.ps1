@@ -110,13 +110,13 @@ function Continue-Release()
 
   if ( Is-On-Branch "prerelease/" )
   {
-    Continue-Pre-Release $CurrentVersion -DoNotPush:$DoNotPush
+    Continue-Pre-Release $CurrentVersion -DoNotPush:$DoNotPush -Ancestor $Ancestor
   }
   elseif (Is-On-Branch "release/")
   {
     if ([string]::IsNullOrEmpty($Ancestor))
     {
-      $Ancestor = Get-Ancestor
+      $Ancestor = Get-Ancestor "develop", "support/v"
     }
 
     if ($Ancestor -eq "develop" )
@@ -318,7 +318,7 @@ function Release-RC ()
     
   if ([string]::IsNullOrEmpty($Ancestor) )
   {
-    $Ancestor = Get-Ancestor
+    $Ancestor = Get-Ancestor "develop", "support/v"
   }
     
   $CurrentBranchname = Get-Current-Branchname
@@ -374,7 +374,7 @@ function Release-With-RC ()
     
   if ([string]::IsNullOrEmpty($Ancestor))
   {
-    $Ancestor = Get-Ancestor
+    $Ancestor = Get-Ancestor "develop", "support/v"
   }
 
   $CurrentBranchname = Get-Current-Branchname
@@ -391,7 +391,7 @@ function Release-With-RC ()
   {
     $PossibleNextVersions = Get-Possible-Next-Versions-Develop $CurrentVersion
   }
-  elseif ($Ancestor.StartsWith("support/") -or ($Ancestor -eq "master") )
+  elseif ($Ancestor.StartsWith("support/"))
   {
     $PossibleNextVersions = Get-Possible-Next-Versions-Support $CurrentVersion
   }
@@ -518,7 +518,7 @@ function Continue-Pre-Release ()
     
   if ([string]::IsNullOrEmpty($Ancestor))
   {
-    $BaseBranchname = Get-Ancestor
+    $BaseBranchname = Get-Ancestor "develop", "support/v"
   }
   else
   {
