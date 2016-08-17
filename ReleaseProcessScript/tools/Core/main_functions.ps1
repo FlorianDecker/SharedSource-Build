@@ -97,9 +97,10 @@ function Continue-Release()
       [string] $Ancestor   
   )
   Check-Min-Git-Version
-
+  $ConfigFile = Get-Config-File
+  
   #Config file should probably be loaded if Release-Version was called before. If not we try if there is a correct config File in the current Branch
-  if (Get-Config-File -eq $NULL)
+  if ($ConfigFile -eq $NULL)
   {
     Load-Config-File
   }
