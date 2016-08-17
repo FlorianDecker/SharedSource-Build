@@ -50,7 +50,6 @@ function New-Releasebranch ()
   Does not work for prerelease branches
   #>
 
-
   [CmdletBinding()]
   param
   (

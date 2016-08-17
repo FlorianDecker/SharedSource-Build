@@ -221,11 +221,11 @@ function Release-On-Master ()
   $ReleaseBranchname = "release/v$($CurrentVersion)"
   Check-Branch-Does-Not-Exists $ReleaseBranchname
     
-$NextPossibleVersions = Get-Possible-Next-Versions-Develop $CurrentVersion
+  $NextPossibleVersions = Get-Possible-Next-Versions-Develop $CurrentVersion
   Write-Host "Please choose next version (open JIRA issues get moved there): "
   $NextVersion = Read-Version-Choice $NextPossibleVersions
 	
-git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
+  git checkout $CommitHash -b $ReleaseBranchname 2>&1 | Write-Host
   git checkout "develop" 2>&1 | Write-Host
 
 
