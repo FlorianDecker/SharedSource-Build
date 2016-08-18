@@ -24,5 +24,5 @@ using System.Reflection;
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyConfiguration ("Build type: Debug")]
 [assembly: AssemblyVersion ("2.0.0.0")]
-[assembly: AssemblyFileVersion ("2.0.0.01011")]
-[assembly: AssemblyInformationalVersion ("2.0.0-alpha.11+Debug")]
+[assembly: AssemblyFileVersion ("2.0.0.01015")]
+[assembly: AssemblyInformationalVersion ("2.0.0-alpha.15+Debug")]
