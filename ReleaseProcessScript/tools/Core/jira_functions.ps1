@@ -122,22 +122,6 @@ function Jira-Release-Version ($CurrentVersionID, $NextVersionID, $SquashUnrelea
   $JiraReleaseVersion.Execute()
 }
 
-function Jira-Release-Version-And-Squash-Unreleased ($CurrentVersionID, $NextVersionID)
-{
-  Confirm-Class-Loaded
-  $JiraReleaseVersionAndSquashUnreleased = New-Object Remotion.BuildTools.MSBuildTasks.Jira.JiraReleaseVersion
-  $ConfigFile = Get-Config-File
-  Check-For-Empty-Config $ConfigFile
-
-  $JiraReleaseVersionAndSquashUnreleased.JiraUrl = Add-JiraUrlPostfix-To-Config-Url $ConfigFile.settings.jira.jiraUrl
-  $JiraReleaseVersionAndSquashUnreleased.VersionID = $CurrentVersionID
-  $JiraReleaseVersionAndSquashUnreleased.NextVersionID = $NextVersionID
-
-  Add-Authentication $JiraReleaseVersionAndSquashUnreleased
-
-  $JiraReleaseVersionAndSquashUnreleased.Execute()
-}
-
 function Jira-Check-Credentials ($Username, $Password)
 {
   Confirm-Class-Loaded

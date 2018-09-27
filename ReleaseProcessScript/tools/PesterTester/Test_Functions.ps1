@@ -16,14 +16,6 @@ function Test-Add-Commit ($Amend)
   git commit -m $RandomValue $Amend
 }
 
-function Test-Get-First-Parent-CommitHash-Short ($Branchname)
-{
-  $FirstParentHash = git rev-list --first-parent $Branchname
-  $FirstParentShortHash = $FirstParentHash.Substring(0, 7)
-    
-  return $FirstParentShortHash[0]
-}
-
 function Test-Create-And-Add-Remote ($TestBaseDir, $TestDirName, $PseudoRemoteTestDir)
 {
   cd $TestBaseDir
@@ -41,21 +33,5 @@ function Test-Mock-All-Jira-Functions()
   Mock Jira-Create-Version { return $TRUE }
   Mock Jira-Get-Current-Version { return "1.2.3" }
   Mock Jira-Release-Version { return $TRUE }
-  Mock Jira-Release-Version-And-Squash-Unreleased { return $TRUE }
   Mock Jira-Check-Credentials { return $TRUE }
-}
-
-
-function Test-Compare-Branches ($RemoteDirectory, $Branchname) 
-{
-  $CurrentDirectory = Get-Location
-
-  $LocalLog = git log $Branchname --graph --pretty=format:'%d %s'
-    
-  cd $RemoteDirectory
-  $RemoteLog = git log $Branchname --graph --pretty=format:'%d %s'
-    
-  cd $CurrentDirectory
-
-  $RemoteLog | Should Be $LocalLog
 }
