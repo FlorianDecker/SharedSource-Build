@@ -1,0 +1,2 @@
+*  (HEAD -> master, tag: v1.0.1, release/v1.0.1) Second commit
+*  (tag: v1.0.0) First commit

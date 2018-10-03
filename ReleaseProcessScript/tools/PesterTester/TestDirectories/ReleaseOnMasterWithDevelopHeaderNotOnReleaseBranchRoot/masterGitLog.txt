@@ -1,0 +1,6 @@
+*    (tag: v1.1.0, master) Merge branch 'release/v1.1.0'
+|\  
+| *  (release/v1.1.0) Develop is now ahead of the ReleaseBranch Root
+|/  
+*  (prerelease/v1.1.0-rc.1) Second commit
+*  (tag: v1.0.0) First commit

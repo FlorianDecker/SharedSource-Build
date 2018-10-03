@@ -1,0 +1,6 @@
+*    (HEAD -> develop) Merge branch 'release/v1.1.0' into develop
+|\  
+| *  (release/v1.1.0) Develop is now ahead of the ReleaseBranch Root
+|/  
+*  (prerelease/v1.1.0-rc.1) Second commit
+*  (tag: v1.0.0) First commit
